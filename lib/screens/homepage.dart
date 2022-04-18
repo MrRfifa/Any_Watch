@@ -18,6 +18,7 @@ var featuresnapshot;
 Product? jundata;
 Product? hxhdata;
 var newachivessnapshot;
+var animesnapshot;
 
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
@@ -155,10 +156,52 @@ class _HomePageState extends State<HomePage> {
           height: 60,
           child: Row(
             children: <Widget>[
-              _buildCategoryProduct(image: 'anime.jpg'),
-              _buildCategoryProduct(image: 'manga.jpg'),
-              _buildCategoryProduct(image: 'serie.jpg'),
-              _buildCategoryProduct(image: 'film.jpg'),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (ctx) => ListShows(
+                          name: 'Anime Category', snapShot: animesnapshot),
+                    ),
+                  );
+                },
+                child: _buildCategoryProduct(
+                  image: 'anime.jpg',
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (ctx) => ListShows(
+                          name: 'Manga Category', snapShot: animesnapshot),
+                    ),
+                  );
+                },
+                child: _buildCategoryProduct(image: 'manga.jpg'),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (ctx) => ListShows(
+                          name: 'Serie Category', snapShot: animesnapshot),
+                    ),
+                  );
+                },
+                child: _buildCategoryProduct(image: 'serie.jpg'),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (ctx) => ListShows(
+                          name: 'Film Category', snapShot: animesnapshot),
+                    ),
+                  );
+                },
+                child: _buildCategoryProduct(image: 'film.jpg'),
+              ),
             ],
           ),
         ),
@@ -207,33 +250,23 @@ class _HomePageState extends State<HomePage> {
       ),
       body: FutureBuilder(
           future: FirebaseFirestore.instance
-              .collection('Products')
-              .doc('R37rXfK1lzu3kc9NkRvU')
-              .collection('featureproduct')
+              .collection('categorie')
+              .doc('EEIvCeEXeuKbdx7ubFvz')
+              .collection('anime')
               .get(),
-          builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-            if (streamSnapshot.connectionState == ConnectionState.waiting) {
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
                 child: CircularProgressIndicator(),
               );
             }
-            featuresnapshot = streamSnapshot;
-            blaclodata = Product(
-                image: streamSnapshot.data?.docs[1]['image'],
-                type: streamSnapshot.data?.docs[1]['type'],
-                name: streamSnapshot.data?.docs[1]['name'],
-                price: streamSnapshot.data?.docs[1]['price']);
-            interdata = Product(
-                image: streamSnapshot.data?.docs[0]['image'],
-                type: streamSnapshot.data?.docs[0]['type'],
-                name: streamSnapshot.data?.docs[0]['name'],
-                price: streamSnapshot.data?.docs[0]['price']);
+            animesnapshot = snapshot;
 
             return FutureBuilder(
                 future: FirebaseFirestore.instance
                     .collection('Products')
                     .doc('R37rXfK1lzu3kc9NkRvU')
-                    .collection('newachives')
+                    .collection('featureproduct')
                     .get(),
                 builder:
                     (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
@@ -243,53 +276,140 @@ class _HomePageState extends State<HomePage> {
                       child: CircularProgressIndicator(),
                     );
                   }
-                  newachivessnapshot = streamSnapshot;
-                  hxhdata = Product(
+                  featuresnapshot = streamSnapshot;
+                  blaclodata = Product(
                       image: streamSnapshot.data?.docs[1]['image'],
                       type: streamSnapshot.data?.docs[1]['type'],
                       name: streamSnapshot.data?.docs[1]['name'],
                       price: streamSnapshot.data?.docs[1]['price']);
-                  jundata = Product(
+                  interdata = Product(
                       image: streamSnapshot.data?.docs[0]['image'],
                       type: streamSnapshot.data?.docs[0]['type'],
                       name: streamSnapshot.data?.docs[0]['name'],
                       price: streamSnapshot.data?.docs[0]['price']);
-                  return Container(
-                    height: double.infinity,
-                    width: double.infinity,
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                    ),
-                    child: ListView(
-                      children: <Widget>[
-                        Column(
-                          children: <Widget>[
-                            Container(
-                              width: double.infinity,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+
+                  return FutureBuilder(
+                      future: FirebaseFirestore.instance
+                          .collection('Products')
+                          .doc('R37rXfK1lzu3kc9NkRvU')
+                          .collection('newachives')
+                          .get(),
+                      builder: (context,
+                          AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+                        if (streamSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        newachivessnapshot = streamSnapshot;
+                        hxhdata = Product(
+                            image: streamSnapshot.data?.docs[1]['image'],
+                            type: streamSnapshot.data?.docs[1]['type'],
+                            name: streamSnapshot.data?.docs[1]['name'],
+                            price: streamSnapshot.data?.docs[1]['price']);
+                        jundata = Product(
+                            image: streamSnapshot.data?.docs[0]['image'],
+                            type: streamSnapshot.data?.docs[0]['type'],
+                            name: streamSnapshot.data?.docs[0]['name'],
+                            price: streamSnapshot.data?.docs[0]['price']);
+                        return Container(
+                          height: double.infinity,
+                          width: double.infinity,
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                          ),
+                          child: ListView(
+                            children: <Widget>[
+                              Column(
                                 children: <Widget>[
-                                  Column(
+                                  Container(
+                                    width: double.infinity,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Column(
+                                          children: <Widget>[
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: <Widget>[
+                                                _buildImageSlider(),
+                                                _buildCategory(),
+                                                const SizedBox(
+                                                  height: 20,
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    const Text(
+                                                      'Featured',
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        Navigator.of(context)
+                                                            .pushReplacement(
+                                                          MaterialPageRoute(
+                                                            builder: (ctx) =>
+                                                                ListShows(
+                                                              name: 'Featured',
+                                                              snapShot:
+                                                                  featuresnapshot,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                      child: const Text(
+                                                        'View more',
+                                                        style: TextStyle(
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
                                     children: <Widget>[
                                       Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: <Widget>[
-                                          _buildImageSlider(),
-                                          _buildCategory(),
-                                          const SizedBox(
-                                            height: 20,
-                                          ),
                                           Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text(
-                                                'Featured',
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.bold),
+                                            children: <Widget>[
+                                              GestureDetector(
+                                                onTap: () {
+                                                  Navigator.of(context)
+                                                      .pushReplacement(
+                                                    MaterialPageRoute(
+                                                      builder: (ctx) =>
+                                                          DetailScreen(
+                                                        image: interdata!.image,
+                                                        name: interdata!.name,
+                                                        type: interdata!.type,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: SingleProduct(
+                                                    show_type: interdata!.type,
+                                                    show_name: interdata!.name,
+                                                    image: interdata!.image),
                                               ),
                                               GestureDetector(
                                                 onTap: () {
@@ -297,22 +417,114 @@ class _HomePageState extends State<HomePage> {
                                                       .pushReplacement(
                                                     MaterialPageRoute(
                                                       builder: (ctx) =>
-                                                          ListShows(
-                                                        name: 'Featured',
-                                                        snapShot:
-                                                            featuresnapshot,
+                                                          DetailScreen(
+                                                        image:
+                                                            blaclodata!.image,
+                                                        name: blaclodata!.name,
+                                                        type: blaclodata!.type,
                                                       ),
                                                     ),
                                                   );
                                                 },
-                                                child: const Text(
-                                                  'View more',
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold),
+                                                child: SingleProduct(
+                                                  show_type: blaclodata!.type,
+                                                  show_name: blaclodata!.name,
+                                                  image: blaclodata!.image,
                                                 ),
-                                              )
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    height: 50,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: <Widget>[
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            const Text(
+                                              'New Achives',
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context)
+                                                    .pushReplacement(
+                                                  MaterialPageRoute(
+                                                    builder: (ctx) => ListShows(
+                                                      name: 'New Achives',
+                                                      snapShot:
+                                                          newachivessnapshot,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: const Text(
+                                                'View more',
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
+                                    children: <Widget>[
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Row(
+                                            children: <Widget>[
+                                              GestureDetector(
+                                                onTap: () {
+                                                  Navigator.of(context)
+                                                      .pushReplacement(
+                                                    MaterialPageRoute(
+                                                      builder: (ctx) =>
+                                                          DetailScreen(
+                                                        image: jundata!.image,
+                                                        name: jundata!.name,
+                                                        type: jundata!.type,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: SingleProduct(
+                                                    show_type: jundata!.type,
+                                                    show_name: jundata!.name,
+                                                    image: jundata!.image),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  Navigator.of(context)
+                                                      .pushReplacement(
+                                                    MaterialPageRoute(
+                                                      builder: (ctx) =>
+                                                          DetailScreen(
+                                                        image: hxhdata!.image,
+                                                        name: hxhdata!.name,
+                                                        type: hxhdata!.type,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                child: SingleProduct(
+                                                    show_type: hxhdata!.type,
+                                                    show_name: hxhdata!.name,
+                                                    image: hxhdata!.image),
+                                              ),
                                             ],
                                           ),
                                         ],
@@ -321,149 +533,10 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ],
                               ),
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Row(
-                                      children: <Widget>[
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.of(context)
-                                                .pushReplacement(
-                                              MaterialPageRoute(
-                                                builder: (ctx) => DetailScreen(
-                                                  image: interdata!.image,
-                                                  name: interdata!.name,
-                                                  type: interdata!.type,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          child: SingleProduct(
-                                              show_type: interdata!.type,
-                                              show_name: interdata!.name,
-                                              image: interdata!.image),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.of(context)
-                                                .pushReplacement(
-                                              MaterialPageRoute(
-                                                builder: (ctx) => DetailScreen(
-                                                  image: blaclodata!.image,
-                                                  name: blaclodata!.name,
-                                                  type: blaclodata!.type,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          child: SingleProduct(
-                                            show_type: blaclodata!.type,
-                                            show_name: blaclodata!.name,
-                                            image: blaclodata!.image,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Container(
-                              height: 50,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text(
-                                        'New Achives',
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.of(context).pushReplacement(
-                                            MaterialPageRoute(
-                                              builder: (ctx) => ListShows(
-                                                name: 'New Achives',
-                                                snapShot: newachivessnapshot,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        child: const Text(
-                                          'View more',
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Row(
-                              children: <Widget>[
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Row(
-                                      children: <Widget>[
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.of(context)
-                                                .pushReplacement(
-                                              MaterialPageRoute(
-                                                builder: (ctx) => DetailScreen(
-                                                  image: jundata!.image,
-                                                  name: jundata!.name,
-                                                  type: jundata!.type,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          child: SingleProduct(
-                                              show_type: jundata!.type,
-                                              show_name: jundata!.name,
-                                              image: jundata!.image),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.of(context)
-                                                .pushReplacement(
-                                              MaterialPageRoute(
-                                                builder: (ctx) => DetailScreen(
-                                                  image: hxhdata!.image,
-                                                  name: hxhdata!.name,
-                                                  type: hxhdata!.type,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          child: SingleProduct(
-                                              show_type: hxhdata!.type,
-                                              show_name: hxhdata!.name,
-                                              image: hxhdata!.image),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
+                            ],
+                          ),
+                        );
+                      });
                 });
           }),
     );
