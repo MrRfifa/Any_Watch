@@ -1,11 +1,14 @@
+import 'package:anime_info/provider/category_provider.dart';
 import 'package:anime_info/screens/detailscreen.dart';
 import 'package:anime_info/screens/listshows.dart';
 import 'package:anime_info/widgets/singleproduct.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:anime_info/model/product.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -14,11 +17,19 @@ class HomePage extends StatefulWidget {
 
 Product? interdata;
 Product? blaclodata;
-var featuresnapshot;
 Product? jundata;
 Product? hxhdata;
+
+late CategoryProvider provider;
+
+var featuresnapshot;
 var newachivessnapshot;
-var animesnapshot;
+
+///categories snapshots
+var animecatsnapshot;
+var seriecatsnapshot;
+var filmcatsnapshot;
+var mangacatsnapshot;
 
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
@@ -138,6 +149,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCategory() {
+    List<Product> animecat = provider.getAnimeList;
+    List<Product> filmcat = provider.getFilmList;
+    List<Product> mangacat = provider.getMangaList;
+    List<Product> seriecat = provider.getSerieList;
     return Column(
       children: <Widget>[
         Container(
@@ -157,50 +172,56 @@ class _HomePageState extends State<HomePage> {
           child: Row(
             children: <Widget>[
               GestureDetector(
+                child: _buildCategoryProduct(image: 'anime.jpg'),
                 onTap: () {
-                  Navigator.of(context).pushReplacement(
+                  Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (ctx) => ListShows(
-                          name: 'Anime Category', snapShot: animesnapshot),
+                      builder: ((context) => ListShows(
+                            name: 'Anime Category',
+                            snapShot: animecat,
+                          )),
                     ),
                   );
                 },
-                child: _buildCategoryProduct(
-                  image: 'anime.jpg',
-                ),
               ),
               GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (ctx) => ListShows(
-                          name: 'Manga Category', snapShot: animesnapshot),
-                    ),
-                  );
-                },
                 child: _buildCategoryProduct(image: 'manga.jpg'),
-              ),
-              GestureDetector(
                 onTap: () {
-                  Navigator.of(context).pushReplacement(
+                  Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (ctx) => ListShows(
-                          name: 'Serie Category', snapShot: animesnapshot),
+                      builder: ((context) => ListShows(
+                            snapShot: mangacat,
+                            name: 'Manga Category',
+                          )),
                     ),
                   );
                 },
+              ),
+              GestureDetector(
                 child: _buildCategoryProduct(image: 'serie.jpg'),
-              ),
-              GestureDetector(
                 onTap: () {
-                  Navigator.of(context).pushReplacement(
+                  Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (ctx) => ListShows(
-                          name: 'Film Category', snapShot: animesnapshot),
+                      builder: ((context) => ListShows(
+                            snapShot: seriecat,
+                            name: 'Serie Category',
+                          )),
                     ),
                   );
                 },
+              ),
+              GestureDetector(
                 child: _buildCategoryProduct(image: 'film.jpg'),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: ((context) => ListShows(
+                            snapShot: filmcat,
+                            name: 'Film Category',
+                          )),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -211,6 +232,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    provider = Provider.of<CategoryProvider>(context);
+    provider.getAnimeData();
+    provider.getFilmData();
+    provider.getMangaData();
+    provider.getSerieData();
     return Scaffold(
       key: _key,
       drawer: _buildMyDrawer(),
@@ -250,43 +276,42 @@ class _HomePageState extends State<HomePage> {
       ),
       body: FutureBuilder(
           future: FirebaseFirestore.instance
-              .collection('categorie')
-              .doc('EEIvCeEXeuKbdx7ubFvz')
-              .collection('anime')
+              .collection('Products')
+              .doc('R37rXfK1lzu3kc9NkRvU')
+              .collection('featureproduct')
               .get(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+          builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
+            if (streamSnapshot.connectionState == ConnectionState.waiting) {
               return Center(
                 child: CircularProgressIndicator(),
               );
             }
-            animesnapshot = snapshot;
+            featuresnapshot = streamSnapshot;
+            blaclodata = Product(
+                image: streamSnapshot.data?.docs[1]['image'],
+                type: streamSnapshot.data?.docs[1]['type'],
+                name: streamSnapshot.data?.docs[1]['name'],
+                price: streamSnapshot.data?.docs[1]['price']);
+            interdata = Product(
+                image: streamSnapshot.data?.docs[0]['image'],
+                type: streamSnapshot.data?.docs[0]['type'],
+                name: streamSnapshot.data?.docs[0]['name'],
+                price: streamSnapshot.data?.docs[0]['price']);
 
             return FutureBuilder(
                 future: FirebaseFirestore.instance
-                    .collection('Products')
-                    .doc('R37rXfK1lzu3kc9NkRvU')
-                    .collection('featureproduct')
+                    .collection('categorie')
+                    .doc('EEIvCeEXeuKbdx7ubFvz')
+                    .collection('anime')
                     .get(),
-                builder:
-                    (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-                  if (streamSnapshot.connectionState ==
+                builder: (context, animesnapshot) {
+                  if (animesnapshot.connectionState ==
                       ConnectionState.waiting) {
                     return Center(
                       child: CircularProgressIndicator(),
                     );
                   }
-                  featuresnapshot = streamSnapshot;
-                  blaclodata = Product(
-                      image: streamSnapshot.data?.docs[1]['image'],
-                      type: streamSnapshot.data?.docs[1]['type'],
-                      name: streamSnapshot.data?.docs[1]['name'],
-                      price: streamSnapshot.data?.docs[1]['price']);
-                  interdata = Product(
-                      image: streamSnapshot.data?.docs[0]['image'],
-                      type: streamSnapshot.data?.docs[0]['type'],
-                      name: streamSnapshot.data?.docs[0]['name'],
-                      price: streamSnapshot.data?.docs[0]['price']);
+                  animecatsnapshot = animesnapshot;
 
                   return FutureBuilder(
                       future: FirebaseFirestore.instance

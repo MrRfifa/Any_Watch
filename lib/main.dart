@@ -1,5 +1,5 @@
 import 'package:anime_info/provider/category_provider.dart';
-import 'package:anime_info/provider/product_provider.dart';
+import 'package:anime_info/provider/show_provider.dart';
 import 'package:anime_info/screens/checkout.dart';
 import 'package:anime_info/screens/homepage.dart';
 import 'package:anime_info/screens/login.dart';
@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  Provider.debugCheckInvalidValueType = null;
   runApp(MyApp());
 }
 
@@ -22,8 +23,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(),
       home: MultiProvider(
         providers: [
-          Provider<ProductProvider>(create: (ctx) => ProductProvider()),
-          Provider<CategoryProvider>(create: (ctx) => CategoryProvider())
+          ListenableProvider<ShowProvider>(
+            create: (ctx) => ShowProvider(),
+          ),
+          ListenableProvider<CategoryProvider>(
+            create: (ctx) => CategoryProvider(),
+          ),
         ],
         child: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),

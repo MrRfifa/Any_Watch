@@ -1,26 +1,19 @@
+import 'package:anime_info/model/product.dart';
 import 'package:anime_info/screens/homepage.dart';
 import 'package:anime_info/widgets/singleproduct.dart';
 import 'package:flutter/material.dart';
 
 class ListShows extends StatelessWidget {
-  final String name;
-  final snapShot;
-  ListShows({required this.name, required this.snapShot});
+  final name;
+  final List<Product> snapShot;
+  ListShows({this.name, required this.snapShot});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (ctx) => HomePage(),
-              ),
-            );
-          },
+        iconTheme: IconThemeData(
           color: Colors.black,
         ),
         actions: <Widget>[
@@ -65,19 +58,18 @@ class ListShows extends StatelessWidget {
                 ),
                 Container(
                   height: 550,
-                  child: GridView.builder(
-                    itemCount: snapShot.data.docs.length,
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.6,
                     scrollDirection: Axis.vertical,
-                    itemBuilder: (ctx, index) => SingleProduct(
-                        show_type: snapShot.data.docs[index]['type'],
-                        show_name: snapShot.data.docs[index]['name'],
-                        image: snapShot.data.docs[index]['image']),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.75,
-                      mainAxisSpacing: 0,
-                      crossAxisSpacing: 10,
-                    ),
+                    children: snapShot
+                        .map(
+                          (e) => SingleProduct(
+                              show_type: e.type,
+                              show_name: e.name,
+                              image: e.image),
+                        )
+                        .toList(),
                   ),
                 )
               ],
