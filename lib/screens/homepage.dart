@@ -1,14 +1,15 @@
+import 'package:anime_info/model/categoryicon.dart';
 import 'package:anime_info/provider/category_provider.dart';
 import 'package:anime_info/screens/detailscreen.dart';
 import 'package:anime_info/screens/listshows.dart';
 import 'package:anime_info/widgets/singleproduct.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:anime_info/model/product.dart';
 import 'package:provider/provider.dart';
+
+import '../provider/show_provider.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -20,24 +21,26 @@ Product? blaclodata;
 Product? jundata;
 Product? hxhdata;
 
-late CategoryProvider provider;
+late CategoryProvider categprovider;
+late ShowProvider showprovider;
 
-var featuresnapshot;
+//var featuresnapshot;
 var newachivessnapshot;
-
-///categories snapshots
-var animecatsnapshot;
-var seriecatsnapshot;
-var filmcatsnapshot;
-var mangacatsnapshot;
 
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
 
-  Widget _buildCategoryProduct({required String image}) {
+  Widget _buildCategoryProduct({required String image, required int color}) {
     return CircleAvatar(
       maxRadius: 48,
-      backgroundImage: AssetImage('assets/$image'),
+      backgroundColor: Color(color),
+      child: Container(
+        height: 40,
+        child: Image(
+          image: NetworkImage(image),
+          color: Colors.white,
+        ),
+      ),
     );
   }
 
@@ -148,11 +151,119 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildAnimeIcon() {
+    List<Product> animecat = categprovider.getAnimeList;
+    List<CategoryIcon> animecaticon = categprovider.getAnimeIcon;
+
+    return Row(
+      children: animecaticon.map(
+        (e) {
+          return GestureDetector(
+            child: _buildCategoryProduct(
+              image: e.image,
+              color: 0xffd9ed92,
+            ),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: ((context) => ListShows(
+                        name: 'Anime Category',
+                        snapShot: animecat,
+                      )),
+                ),
+              );
+            },
+          );
+        },
+      ).toList(),
+    );
+  }
+
+  Widget _buildMangaIcon() {
+    List<Product> mangacat = categprovider.getMangaList;
+    List<CategoryIcon> mangacaticon = categprovider.getMangaIcon;
+
+    return Row(
+      children: mangacaticon.map(
+        (e) {
+          return GestureDetector(
+            child: _buildCategoryProduct(
+              image: e.image,
+              color: 0xffd9ed92,
+            ),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: ((context) => ListShows(
+                        name: 'Anime Category',
+                        snapShot: mangacat,
+                      )),
+                ),
+              );
+            },
+          );
+        },
+      ).toList(),
+    );
+  }
+
+  Widget _buildFilmIcon() {
+    List<Product> filmcat = categprovider.getFilmList;
+    List<CategoryIcon> filmcaticon = categprovider.getFilmIcon;
+
+    return Row(
+      children: filmcaticon.map(
+        (e) {
+          return GestureDetector(
+            child: _buildCategoryProduct(
+              image: e.image,
+              color: 0xffd9ed92,
+            ),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: ((context) => ListShows(
+                        name: 'Anime Category',
+                        snapShot: filmcat,
+                      )),
+                ),
+              );
+            },
+          );
+        },
+      ).toList(),
+    );
+  }
+
+  Widget _buildSerieIcon() {
+    List<Product> seriecat = categprovider.getSerieList;
+    List<CategoryIcon> seriecaticon = categprovider.getSerieIcon;
+
+    return Row(
+      children: seriecaticon.map(
+        (e) {
+          return GestureDetector(
+            child: _buildCategoryProduct(
+              image: e.image,
+              color: 0xffd9ed92,
+            ),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: ((context) => ListShows(
+                        name: 'Anime Category',
+                        snapShot: seriecat,
+                      )),
+                ),
+              );
+            },
+          );
+        },
+      ).toList(),
+    );
+  }
+
   Widget _buildCategory() {
-    List<Product> animecat = provider.getAnimeList;
-    List<Product> filmcat = provider.getFilmList;
-    List<Product> mangacat = provider.getMangaList;
-    List<Product> seriecat = provider.getSerieList;
     return Column(
       children: <Widget>[
         Container(
@@ -171,58 +282,10 @@ class _HomePageState extends State<HomePage> {
           height: 60,
           child: Row(
             children: <Widget>[
-              GestureDetector(
-                child: _buildCategoryProduct(image: 'anime.jpg'),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: ((context) => ListShows(
-                            name: 'Anime Category',
-                            snapShot: animecat,
-                          )),
-                    ),
-                  );
-                },
-              ),
-              GestureDetector(
-                child: _buildCategoryProduct(image: 'manga.jpg'),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: ((context) => ListShows(
-                            snapShot: mangacat,
-                            name: 'Manga Category',
-                          )),
-                    ),
-                  );
-                },
-              ),
-              GestureDetector(
-                child: _buildCategoryProduct(image: 'serie.jpg'),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: ((context) => ListShows(
-                            snapShot: seriecat,
-                            name: 'Serie Category',
-                          )),
-                    ),
-                  );
-                },
-              ),
-              GestureDetector(
-                child: _buildCategoryProduct(image: 'film.jpg'),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: ((context) => ListShows(
-                            snapShot: filmcat,
-                            name: 'Film Category',
-                          )),
-                    ),
-                  );
-                },
-              ),
+              _buildAnimeIcon(),
+              _buildMangaIcon(),
+              _buildSerieIcon(),
+              _buildFilmIcon(),
             ],
           ),
         ),
@@ -230,13 +293,213 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildFeature() {
+    List<Product> featureproduct;
+    List<Product> homefeatureproduct;
+
+    homefeatureproduct = showprovider.getHomeFeatureList;
+    featureproduct = showprovider.getFeatureList;
+    return Column(
+      children: <Widget>[
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            const Text(
+              'Featured',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (ctx) => ListShows(
+                      name: 'Featured',
+                      snapShot: featureproduct,
+                    ),
+                  ),
+                );
+              },
+              child: const Text(
+                'View more',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            )
+          ],
+        ),
+        Row(
+          children: homefeatureproduct.map((e) {
+            return Expanded(
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (ctx) => DetailScreen(
+                              image: e.image,
+                              name: e.name,
+                              type: e.type,
+                            ),
+                          ),
+                        );
+                      },
+                      child: SingleProduct(
+                        show_type: e.type,
+                        show_name: e.name,
+                        image: e.image,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (ctx) => DetailScreen(
+                            image: e.image,
+                            name: e.name,
+                            type: e.type,
+                          ),
+                        ),
+                      );
+                    },
+                    child: SingleProduct(
+                      show_type: e.type,
+                      show_name: e.name,
+                      image: e.image,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNewAchieve() {
+    List<Product> newachieveproduct = showprovider.getNewAchieveList;
+    return Column(
+      children: <Widget>[
+        Container(
+          height: 50,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'New Achives',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (ctx) => ListShows(
+                            name: 'New Achieves',
+                            snapShot: newachieveproduct,
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'View more',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+        Row(
+          children: showprovider.getHomeNewAchieveList.map((e) {
+            return Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                      builder: (ctx) => DetailScreen(
+                                        image: e.image,
+                                        name: e.name,
+                                        type: e.type,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: SingleProduct(
+                                  show_type: e.type,
+                                  show_name: e.name,
+                                  image: e.image,
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (ctx) => DetailScreen(
+                                      image: e.image,
+                                      name: e.name,
+                                      type: e.type,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: SingleProduct(
+                                show_type: e.type,
+                                show_name: e.name,
+                                image: e.image,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    provider = Provider.of<CategoryProvider>(context);
-    provider.getAnimeData();
-    provider.getFilmData();
-    provider.getMangaData();
-    provider.getSerieData();
+    ////category provider
+    categprovider = Provider.of<CategoryProvider>(context);
+    categprovider.getAnimeData();
+    categprovider.getFilmData();
+    categprovider.getMangaData();
+    categprovider.getSerieData();
+    ////show provider
+    showprovider = Provider.of<ShowProvider>(context);
+    showprovider.getFeatureData();
+    showprovider.getNewAchieveData();
+    /////home feature provider
+    showprovider.getHomeFeatureData();
+    /////home new achieves provider
+    showprovider.getHomeNewAchieveData();
+    /////home categorie icon provider
+    categprovider.getAnimeIconData();
+    categprovider.getFilmIconData();
+    categprovider.getSerieIconData();
+    categprovider.getMangaIconData();
     return Scaffold(
       key: _key,
       drawer: _buildMyDrawer(),
@@ -274,296 +537,32 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: FutureBuilder(
-          future: FirebaseFirestore.instance
-              .collection('Products')
-              .doc('R37rXfK1lzu3kc9NkRvU')
-              .collection('featureproduct')
-              .get(),
-          builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-            if (streamSnapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            featuresnapshot = streamSnapshot;
-            blaclodata = Product(
-                image: streamSnapshot.data?.docs[1]['image'],
-                type: streamSnapshot.data?.docs[1]['type'],
-                name: streamSnapshot.data?.docs[1]['name'],
-                price: streamSnapshot.data?.docs[1]['price']);
-            interdata = Product(
-                image: streamSnapshot.data?.docs[0]['image'],
-                type: streamSnapshot.data?.docs[0]['type'],
-                name: streamSnapshot.data?.docs[0]['name'],
-                price: streamSnapshot.data?.docs[0]['price']);
-
-            return FutureBuilder(
-                future: FirebaseFirestore.instance
-                    .collection('categorie')
-                    .doc('EEIvCeEXeuKbdx7ubFvz')
-                    .collection('anime')
-                    .get(),
-                builder: (context, animesnapshot) {
-                  if (animesnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  animecatsnapshot = animesnapshot;
-
-                  return FutureBuilder(
-                      future: FirebaseFirestore.instance
-                          .collection('Products')
-                          .doc('R37rXfK1lzu3kc9NkRvU')
-                          .collection('newachives')
-                          .get(),
-                      builder: (context,
-                          AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-                        if (streamSnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        newachivessnapshot = streamSnapshot;
-                        hxhdata = Product(
-                            image: streamSnapshot.data?.docs[1]['image'],
-                            type: streamSnapshot.data?.docs[1]['type'],
-                            name: streamSnapshot.data?.docs[1]['name'],
-                            price: streamSnapshot.data?.docs[1]['price']);
-                        jundata = Product(
-                            image: streamSnapshot.data?.docs[0]['image'],
-                            type: streamSnapshot.data?.docs[0]['type'],
-                            name: streamSnapshot.data?.docs[0]['name'],
-                            price: streamSnapshot.data?.docs[0]['price']);
-                        return Container(
-                          height: double.infinity,
-                          width: double.infinity,
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                          ),
-                          child: ListView(
-                            children: <Widget>[
-                              Column(
-                                children: <Widget>[
-                                  Container(
-                                    width: double.infinity,
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Column(
-                                          children: <Widget>[
-                                            Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: <Widget>[
-                                                _buildImageSlider(),
-                                                _buildCategory(),
-                                                const SizedBox(
-                                                  height: 20,
-                                                ),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    const Text(
-                                                      'Featured',
-                                                      style: TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                    GestureDetector(
-                                                      onTap: () {
-                                                        Navigator.of(context)
-                                                            .pushReplacement(
-                                                          MaterialPageRoute(
-                                                            builder: (ctx) =>
-                                                                ListShows(
-                                                              name: 'Featured',
-                                                              snapShot:
-                                                                  featuresnapshot,
-                                                            ),
-                                                          ),
-                                                        );
-                                                      },
-                                                      child: const Text(
-                                                        'View more',
-                                                        style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Row(
-                                    children: <Widget>[
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Row(
-                                            children: <Widget>[
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.of(context)
-                                                      .pushReplacement(
-                                                    MaterialPageRoute(
-                                                      builder: (ctx) =>
-                                                          DetailScreen(
-                                                        image: interdata!.image,
-                                                        name: interdata!.name,
-                                                        type: interdata!.type,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                child: SingleProduct(
-                                                    show_type: interdata!.type,
-                                                    show_name: interdata!.name,
-                                                    image: interdata!.image),
-                                              ),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.of(context)
-                                                      .pushReplacement(
-                                                    MaterialPageRoute(
-                                                      builder: (ctx) =>
-                                                          DetailScreen(
-                                                        image:
-                                                            blaclodata!.image,
-                                                        name: blaclodata!.name,
-                                                        type: blaclodata!.type,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                child: SingleProduct(
-                                                  show_type: blaclodata!.type,
-                                                  show_name: blaclodata!.name,
-                                                  image: blaclodata!.image,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  Container(
-                                    height: 50,
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: <Widget>[
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Text(
-                                              'New Achives',
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            GestureDetector(
-                                              onTap: () {
-                                                Navigator.of(context)
-                                                    .pushReplacement(
-                                                  MaterialPageRoute(
-                                                    builder: (ctx) => ListShows(
-                                                      name: 'New Achives',
-                                                      snapShot:
-                                                          newachivessnapshot,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                              child: const Text(
-                                                'View more',
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Row(
-                                    children: <Widget>[
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Row(
-                                            children: <Widget>[
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.of(context)
-                                                      .pushReplacement(
-                                                    MaterialPageRoute(
-                                                      builder: (ctx) =>
-                                                          DetailScreen(
-                                                        image: jundata!.image,
-                                                        name: jundata!.name,
-                                                        type: jundata!.type,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                child: SingleProduct(
-                                                    show_type: jundata!.type,
-                                                    show_name: jundata!.name,
-                                                    image: jundata!.image),
-                                              ),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  Navigator.of(context)
-                                                      .pushReplacement(
-                                                    MaterialPageRoute(
-                                                      builder: (ctx) =>
-                                                          DetailScreen(
-                                                        image: hxhdata!.image,
-                                                        name: hxhdata!.name,
-                                                        type: hxhdata!.type,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                child: SingleProduct(
-                                                    show_type: hxhdata!.type,
-                                                    show_name: hxhdata!.name,
-                                                    image: hxhdata!.image),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      });
-                });
-          }),
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(
+          horizontal: 10,
+        ),
+        child: ListView(
+          children: <Widget>[
+            Container(
+              width: double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  _buildImageSlider(),
+                  _buildCategory(),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  _buildFeature(),
+                  _buildNewAchieve(),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

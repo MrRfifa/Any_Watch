@@ -13,18 +13,18 @@ class ListShows extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.black,
         ),
         actions: <Widget>[
           IconButton(
             onPressed: () {},
-            icon: Icon(Icons.search),
+            icon: const Icon(Icons.search),
             color: Colors.black,
           ),
           IconButton(
             onPressed: () {},
-            icon: Icon(Icons.notifications_none),
+            icon: const Icon(Icons.notifications_none),
             color: Colors.black,
           ),
         ],
@@ -60,7 +60,7 @@ class ListShows extends StatelessWidget {
                   height: 550,
                   child: GridView.count(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.6,
+                    childAspectRatio: 0.75,
                     scrollDirection: Axis.vertical,
                     children: snapShot
                         .map(

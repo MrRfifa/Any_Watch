@@ -1,3 +1,4 @@
+import 'package:anime_info/model/categoryicon.dart';
 import 'package:anime_info/model/product.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,17 @@ class CategoryProvider with ChangeNotifier {
   List<Product> serie = [];
   late Product mangaData;
   List<Product> manga = [];
+
+  ///cat icon
+  List<CategoryIcon> animeIcon = [];
+  late CategoryIcon animeiconData;
+  List<CategoryIcon> mangaIcon = [];
+  late CategoryIcon mangaiconData;
+  List<CategoryIcon> filmIcon = [];
+  late CategoryIcon filmiconData;
+  List<CategoryIcon> serieIcon = [];
+  late CategoryIcon serieiconData;
+
   ////anime data
   Future<void> getAnimeData() async {
     List<Product> tempList = [];
@@ -31,6 +43,7 @@ class CategoryProvider with ChangeNotifier {
       },
     );
     anime = tempList;
+    notifyListeners();
   }
 
   List<Product> get getAnimeList {
@@ -58,6 +71,7 @@ class CategoryProvider with ChangeNotifier {
       },
     );
     film = tempList;
+    notifyListeners();
   }
 
   List<Product> get getFilmList {
@@ -85,6 +99,7 @@ class CategoryProvider with ChangeNotifier {
       },
     );
     manga = tempList;
+    notifyListeners();
   }
 
   List<Product> get getMangaList {
@@ -112,6 +127,7 @@ class CategoryProvider with ChangeNotifier {
       },
     );
     serie = tempList;
+    notifyListeners();
   }
 
   List<Product> get getSerieList {
@@ -119,4 +135,107 @@ class CategoryProvider with ChangeNotifier {
   }
   /////end serie data
 
+  ////animeicon data
+
+  Future<void> getAnimeIconData() async {
+    List<CategoryIcon> tempList = [];
+    QuerySnapshot animeiconSnapshot = await FirebaseFirestore.instance
+        .collection('categoryicon')
+        .doc('fH6SSUo0bGXHEnGuTgz6')
+        .collection('anime')
+        .get();
+    animeiconSnapshot.docs.forEach(
+      (element) {
+        animeiconData = CategoryIcon(
+          image: element.get('image'),
+        );
+        tempList.add(animeiconData);
+      },
+    );
+    animeIcon = tempList;
+    notifyListeners();
+  }
+
+  List<CategoryIcon> get getAnimeIcon {
+    return animeIcon;
+  }
+  /////end animeicon data
+
+  ////mangaicon data
+
+  Future<void> getMangaIconData() async {
+    List<CategoryIcon> tempList = [];
+    QuerySnapshot mangaiconSnapshot = await FirebaseFirestore.instance
+        .collection('categoryicon')
+        .doc('fH6SSUo0bGXHEnGuTgz6')
+        .collection('manga')
+        .get();
+    mangaiconSnapshot.docs.forEach(
+      (element) {
+        mangaiconData = CategoryIcon(
+          image: element.get('image'),
+        );
+        tempList.add(mangaiconData);
+      },
+    );
+    mangaIcon = tempList;
+    notifyListeners();
+  }
+
+  List<CategoryIcon> get getMangaIcon {
+    return mangaIcon;
+  }
+  /////end mangaicon data
+
+  ////filmicon data
+
+  Future<void> getFilmIconData() async {
+    List<CategoryIcon> tempList = [];
+    QuerySnapshot filmiconSnapshot = await FirebaseFirestore.instance
+        .collection('categoryicon')
+        .doc('fH6SSUo0bGXHEnGuTgz6')
+        .collection('film')
+        .get();
+    filmiconSnapshot.docs.forEach(
+      (element) {
+        filmiconData = CategoryIcon(
+          image: element.get('image'),
+        );
+        tempList.add(filmiconData);
+      },
+    );
+    filmIcon = tempList;
+    notifyListeners();
+  }
+
+  List<CategoryIcon> get getFilmIcon {
+    return filmIcon;
+  }
+  /////end filmicon data
+
+  ////serieicon data
+
+  Future<void> getSerieIconData() async {
+    List<CategoryIcon> tempList = [];
+    QuerySnapshot serieiconSnapshot = await FirebaseFirestore.instance
+        .collection('categoryicon')
+        .doc('fH6SSUo0bGXHEnGuTgz6')
+        .collection('serie')
+        .get();
+    serieiconSnapshot.docs.forEach(
+      (element) {
+        serieiconData = CategoryIcon(
+          image: element.get('image'),
+        );
+        tempList.add(serieiconData);
+      },
+    );
+    serieIcon = tempList;
+    notifyListeners();
+  }
+
+  List<CategoryIcon> get getSerieIcon {
+    return serieIcon;
+  }
+  /////end serieicon data
 }
