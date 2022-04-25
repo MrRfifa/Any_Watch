@@ -4,30 +4,24 @@ class CartSingleProduct extends StatefulWidget {
   final String name;
   final String image;
   final String type;
-  final int quantity;
-  final double price;
+  int quantity;
+  final bool? isCount;
   CartSingleProduct({
     required this.image,
     required this.name,
-    required this.price,
     required this.type,
     required this.quantity,
+    this.isCount,
   });
-
   @override
   State<CartSingleProduct> createState() => _CartSingleProductState();
 }
 
-late int count;
-
-TextStyle myStyle = TextStyle(
-  fontSize: 18,
-);
+TextStyle myStyle = TextStyle(fontSize: 18);
 
 class _CartSingleProductState extends State<CartSingleProduct> {
   @override
   Widget build(BuildContext context) {
-    count = widget.quantity;
     return Container(
       height: 150,
       width: double.infinity,
@@ -43,7 +37,7 @@ class _CartSingleProductState extends State<CartSingleProduct> {
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       fit: BoxFit.fill,
-                      image: AssetImage('${widget.image}'),
+                      image: NetworkImage(widget.image),
                     ),
                   ),
                 ),
@@ -78,7 +72,7 @@ class _CartSingleProductState extends State<CartSingleProduct> {
                             ),
                             Container(
                               height: 35,
-                              width: 130,
+                              width: widget.isCount == false ? 140 : 130,
                               color: Color.fromARGB(204, 40, 91, 117),
                               child: Row(
                                 mainAxisAlignment:
@@ -91,14 +85,14 @@ class _CartSingleProductState extends State<CartSingleProduct> {
                                     ),
                                     onTap: () {
                                       setState(() {
-                                        if (count > 1) {
-                                          count--;
+                                        if (widget.quantity > 1) {
+                                          widget.quantity--;
                                         }
                                       });
                                     },
                                   ),
                                   Text(
-                                    count.toString() + ' Month',
+                                    widget.quantity.toString() + ' Month(s)',
                                     style: TextStyle(
                                         fontSize: 18, color: Colors.white),
                                   ),
@@ -109,7 +103,7 @@ class _CartSingleProductState extends State<CartSingleProduct> {
                                     ),
                                     onTap: () {
                                       setState(() {
-                                        count++;
+                                        widget.quantity++;
                                       });
                                     },
                                   ),

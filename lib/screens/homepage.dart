@@ -10,6 +10,7 @@ import 'package:anime_info/model/product.dart';
 import 'package:provider/provider.dart';
 
 import '../provider/show_provider.dart';
+import '../widgets/notification_but.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -528,13 +529,7 @@ class _HomePageState extends State<HomePage> {
               color: Colors.black,
             ),
           ),
-          IconButton(
-            icon: const Icon(
-              Icons.notifications_none,
-              color: Colors.black,
-            ),
-            onPressed: () {},
-          ),
+          NotificationButton(),
         ],
       ),
       body: Container(

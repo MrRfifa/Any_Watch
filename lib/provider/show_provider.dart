@@ -1,9 +1,36 @@
+import 'package:anime_info/model/cartmodel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../model/product.dart';
 
 class ShowProvider with ChangeNotifier {
+  List<CartModel> cartModelList = [];
+  late CartModel cartModel;
+
+  void getCartData({
+    required String name,
+    required String type,
+    required String image,
+    required int quantity,
+  }) {
+    cartModel = CartModel(
+      image: image,
+      type: type,
+      name: name,
+      quantity: quantity,
+    );
+    cartModelList.add(cartModel);
+  }
+
+  List<CartModel> get getCartModelList {
+    return List.from(cartModelList);
+  }
+
+  int get getCartModelListLength {
+    return cartModelList.length;
+  }
+
   late Product featureData;
   List<Product> feature = [];
 
@@ -129,4 +156,13 @@ class ShowProvider with ChangeNotifier {
   }
 
   /////end homenewachieve data
+
+  List<String> notificationList = [];
+  void addNotification(String notification) {
+    notificationList.add(notification);
+  }
+
+  int get getNotificationIndex {
+    return notificationList.length;
+  }
 }

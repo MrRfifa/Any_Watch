@@ -19,20 +19,21 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(),
-      home: MultiProvider(
-        providers: [
-          ListenableProvider<ShowProvider>(
-            create: (ctx) => ShowProvider(),
-          ),
-          ListenableProvider<CategoryProvider>(
-            create: (ctx) => CategoryProvider(),
-          ),
-        ],
-        child: StreamBuilder(
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CategoryProvider>(
+          create: (context) => CategoryProvider(),
+        ),
+        ChangeNotifierProvider<ShowProvider>(
+          create: (context) => ShowProvider(),
+        ),
+      ],
+      child: MaterialApp(
+        theme: ThemeData(),
+        debugShowCheckedModeBanner: false,
+        home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (ctx, snapShot) {
+          builder: (context, snapShot) {
             if (snapShot.hasData) {
               return HomePage();
             } else {

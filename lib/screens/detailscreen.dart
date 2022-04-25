@@ -1,8 +1,11 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
+import 'package:anime_info/provider/show_provider.dart';
 import 'package:anime_info/screens/cartscreen.dart';
 import 'package:anime_info/screens/homepage.dart';
+import 'package:anime_info/widgets/notification_but.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DetailScreen extends StatefulWidget {
   final String image;
@@ -14,6 +17,9 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
+  int count = 1;
+  late ShowProvider shpro;
+
   Widget _BuildTypeProduct({required String name}) {
     return Container(
       height: 60,
@@ -136,12 +142,19 @@ class _DetailScreenState extends State<DetailScreen> {
       height: 50,
       width: double.infinity,
       child: RaisedButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
         onPressed: () {
+          shpro.getCartData(
+            image: widget.image,
+            type: widget.type,
+            name: widget.name,
+            quantity: count,
+          );
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (ctx) => CartScreen(
-                  image: widget.image, name: widget.name, type: widget.type),
+              builder: (context) => CartScreen(),
             ),
           );
         },
@@ -158,6 +171,7 @@ class _DetailScreenState extends State<DetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    shpro = Provider.of<ShowProvider>(context);
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -175,19 +189,13 @@ class _DetailScreenState extends State<DetailScreen> {
           onPressed: () {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (ctx) => HomePage(),
+                builder: (context) => HomePage(),
               ),
             );
           },
         ),
         actions: <Widget>[
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.notifications_none,
-              color: Colors.black,
-            ),
-          )
+          NotificationButton(),
         ],
       ),
       body: Container(

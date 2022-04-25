@@ -13,6 +13,19 @@ class ListShows extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0.0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.black,
+          ),
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (ctx) => HomePage(),
+              ),
+            );
+          },
+        ),
         iconTheme: const IconThemeData(
           color: Colors.black,
         ),
