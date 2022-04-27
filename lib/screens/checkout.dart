@@ -1,4 +1,5 @@
 import 'package:anime_info/provider/show_provider.dart';
+import 'package:anime_info/screens/homepage.dart';
 import 'package:anime_info/widgets/cartsingleproduct.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -31,7 +32,18 @@ class _CheckOutState extends State<CheckOut> {
 
   @override
   Widget build(BuildContext context) {
+    double subtotal = 0;
+    double discount = 5;
+    double discountRupees;
+    double total;
     shpro = Provider.of<ShowProvider>(context);
+    shpro.getCheckOutModelList.forEach(
+      ((element) {
+        subtotal += element.price * element.quantity;
+      }),
+    );
+    discountRupees = (discount / 100) * subtotal;
+    total = subtotal - discountRupees;
     return Scaffold(
       bottomNavigationBar: Container(
         height: 90,
@@ -59,11 +71,17 @@ class _CheckOutState extends State<CheckOut> {
         backgroundColor: Colors.transparent,
         elevation: 0.0,
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
             color: Colors.black,
           ),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => HomePage(),
+              ),
+            );
+          },
         ),
         actions: <Widget>[
           NotificationButton(),
@@ -74,33 +92,39 @@ class _CheckOutState extends State<CheckOut> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            ListView.builder(
-              itemCount: shpro.getCartModelListLength,
-              itemBuilder: (ctx, index) {
-                return CartSingleProduct(
-                  image: shpro.getCartModelList[index].image,
-                  name: shpro.getCartModelList[index].name,
-                  type: shpro.getCartModelList[index].type,
-                  quantity: shpro.getCartModelList[index].quantity,
-                );
-              },
+            Expanded(
+              flex: 1,
+              child: Container(
+                child: ListView.builder(
+                  itemCount: shpro.getCheckOutModelList.length,
+                  itemBuilder: (ctx, index) {
+                    return CartSingleProduct(
+                      image: shpro.getCheckOutModelList[index].image,
+                      name: shpro.getCheckOutModelList[index].name,
+                      type: shpro.getCheckOutModelList[index].type,
+                      quantity: shpro.getCheckOutModelList[index].quantity,
+                      price: shpro.getCheckOutModelList[index].price,
+                    );
+                  },
+                ),
+              ),
             ),
             Container(
-              height: 110,
+              height: 150,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   _buildBottomDetail(
                     startName: 'Your Price',
-                    endName: '10\$',
+                    endName: '${subtotal.toStringAsFixed(2)} \$',
                   ),
                   _buildBottomDetail(
                     startName: 'Discount',
-                    endName: '3%',
+                    endName: '${discount.toStringAsFixed(2)} %',
                   ),
                   _buildBottomDetail(
                     startName: 'Total Price',
-                    endName: '10\$',
+                    endName: '${total.toStringAsFixed(2)} \$',
                   ),
                 ],
               ),

@@ -7,28 +7,32 @@ import '../model/product.dart';
 class ShowProvider with ChangeNotifier {
   List<CartModel> cartModelList = [];
   late CartModel cartModel;
+  List<CartModel> checkOutModelList = [];
+  late CartModel checkOutModel;
 
-  void getCartData({
+  void getCheckOutData({
     required String name,
     required String type,
     required String image,
     required int quantity,
+    required int price,
   }) {
-    cartModel = CartModel(
+    checkOutModel = CartModel(
       image: image,
       type: type,
       name: name,
       quantity: quantity,
+      price: price,
     );
-    cartModelList.add(cartModel);
+    checkOutModelList.add(checkOutModel);
   }
 
-  List<CartModel> get getCartModelList {
-    return List.from(cartModelList);
+  List<CartModel> get getCheckOutModelList {
+    return List.from(checkOutModelList);
   }
 
-  int get getCartModelListLength {
-    return cartModelList.length;
+  int get getCheckOutModelListLength {
+    return checkOutModelList.length;
   }
 
   late Product featureData;

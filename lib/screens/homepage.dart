@@ -341,6 +341,7 @@ class _HomePageState extends State<HomePage> {
                               image: e.image,
                               name: e.name,
                               type: e.type,
+                              price: e.price,
                             ),
                           ),
                         );
@@ -360,6 +361,7 @@ class _HomePageState extends State<HomePage> {
                             image: e.image,
                             name: e.name,
                             type: e.type,
+                            price: e.price,
                           ),
                         ),
                       );
@@ -437,6 +439,7 @@ class _HomePageState extends State<HomePage> {
                                         image: e.image,
                                         name: e.name,
                                         type: e.type,
+                                        price: e.price,
                                       ),
                                     ),
                                   );
@@ -456,6 +459,7 @@ class _HomePageState extends State<HomePage> {
                                       image: e.image,
                                       name: e.name,
                                       type: e.type,
+                                      price: e.price,
                                     ),
                                   ),
                                 );

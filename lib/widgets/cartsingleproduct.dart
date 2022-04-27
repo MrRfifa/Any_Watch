@@ -1,4 +1,7 @@
+import 'package:anime_info/provider/show_provider.dart';
+import 'package:anime_info/screens/cartscreen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CartSingleProduct extends StatefulWidget {
   final String name;
@@ -6,22 +9,27 @@ class CartSingleProduct extends StatefulWidget {
   final String type;
   int quantity;
   final bool? isCount;
+  final int price;
   CartSingleProduct({
     required this.image,
     required this.name,
     required this.type,
     required this.quantity,
     this.isCount,
+    required this.price,
   });
   @override
   State<CartSingleProduct> createState() => _CartSingleProductState();
 }
 
 TextStyle myStyle = TextStyle(fontSize: 18);
+late ShowProvider shpro;
 
 class _CartSingleProductState extends State<CartSingleProduct> {
   @override
   Widget build(BuildContext context) {
+    shpro = Provider.of<ShowProvider>(context);
+
     return Container(
       height: 150,
       width: double.infinity,
@@ -72,7 +80,7 @@ class _CartSingleProductState extends State<CartSingleProduct> {
                             ),
                             Container(
                               height: 35,
-                              width: widget.isCount == false ? 140 : 130,
+                              width: 140,
                               color: Color.fromARGB(204, 40, 91, 117),
                               child: Row(
                                 mainAxisAlignment:
@@ -84,11 +92,20 @@ class _CartSingleProductState extends State<CartSingleProduct> {
                                       color: Colors.white,
                                     ),
                                     onTap: () {
-                                      setState(() {
-                                        if (widget.quantity > 1) {
-                                          widget.quantity--;
-                                        }
-                                      });
+                                      setState(
+                                        () {
+                                          if (widget.quantity > 1) {
+                                            widget.quantity--;
+                                            shpro.getCheckOutData(
+                                              name: widget.name,
+                                              type: widget.type,
+                                              image: widget.image,
+                                              quantity: widget.quantity,
+                                              price: widget.price,
+                                            );
+                                          }
+                                        },
+                                      );
                                     },
                                   ),
                                   Text(
@@ -102,9 +119,18 @@ class _CartSingleProductState extends State<CartSingleProduct> {
                                       color: Colors.white,
                                     ),
                                     onTap: () {
-                                      setState(() {
-                                        widget.quantity++;
-                                      });
+                                      setState(
+                                        () {
+                                          widget.quantity++;
+                                          shpro.getCheckOutData(
+                                            name: widget.name,
+                                            type: widget.type,
+                                            image: widget.image,
+                                            quantity: widget.quantity,
+                                            price: widget.price,
+                                          );
+                                        },
+                                      );
                                     },
                                   ),
                                 ],

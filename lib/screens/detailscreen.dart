@@ -11,7 +11,12 @@ class DetailScreen extends StatefulWidget {
   final String image;
   final String name;
   final String type;
-  DetailScreen({required this.image, required this.name, required this.type});
+  final int price;
+  DetailScreen(
+      {required this.image,
+      required this.name,
+      required this.type,
+      required this.price});
   @override
   State<DetailScreen> createState() => _DetailScreenState();
 }
@@ -146,12 +151,12 @@ class _DetailScreenState extends State<DetailScreen> {
           borderRadius: BorderRadius.circular(20),
         ),
         onPressed: () {
-          shpro.getCartData(
-            image: widget.image,
-            type: widget.type,
-            name: widget.name,
-            quantity: count,
-          );
+          shpro.getCheckOutData(
+              image: widget.image,
+              type: widget.type,
+              name: widget.name,
+              quantity: count,
+              price: widget.price);
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => CartScreen(),

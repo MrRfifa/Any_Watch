@@ -1,5 +1,6 @@
 import 'package:anime_info/provider/show_provider.dart';
 import 'package:anime_info/screens/checkout.dart';
+import 'package:anime_info/screens/homepage.dart';
 import 'package:anime_info/widgets/cartsingleproduct.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -55,20 +56,27 @@ class _CartScreenState extends State<CartScreen> {
             Icons.arrow_back,
             color: Colors.black,
           ),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => HomePage(),
+              ),
+            );
+          },
         ),
         actions: <Widget>[
           NotificationButton(),
         ],
       ),
       body: ListView.builder(
-        itemCount: shpro.getCartModelListLength,
+        itemCount: shpro.getCheckOutModelListLength,
         itemBuilder: (ctx, index) => CartSingleProduct(
           isCount: false,
-          image: shpro.getCartModelList[index].image,
-          name: shpro.getCartModelList[index].name,
-          type: shpro.getCartModelList[index].type,
-          quantity: shpro.getCartModelList[index].quantity,
+          image: shpro.getCheckOutModelList[index].image,
+          name: shpro.getCheckOutModelList[index].name,
+          type: shpro.getCheckOutModelList[index].type,
+          quantity: shpro.getCheckOutModelList[index].quantity,
+          price: shpro.getCheckOutModelList[index].price,
         ),
       ),
     );

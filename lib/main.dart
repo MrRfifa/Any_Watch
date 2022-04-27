@@ -3,6 +3,7 @@ import 'package:anime_info/provider/show_provider.dart';
 import 'package:anime_info/screens/checkout.dart';
 import 'package:anime_info/screens/homepage.dart';
 import 'package:anime_info/screens/login.dart';
+import 'package:anime_info/screens/profilescreen.dart';
 import 'package:anime_info/screens/welcomescreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
             }
           },
         ),
+        //home: ProfileScreen(),
       ),
     );
   }
