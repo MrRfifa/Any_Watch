@@ -1,7 +1,9 @@
 import 'package:anime_info/model/categoryicon.dart';
+import 'package:anime_info/model/usermodel.dart';
 import 'package:anime_info/provider/category_provider.dart';
 import 'package:anime_info/screens/detailscreen.dart';
 import 'package:anime_info/screens/listshows.dart';
+import 'package:anime_info/screens/profilescreen.dart';
 import 'package:anime_info/widgets/singleproduct.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -45,33 +47,46 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  bool homeColor = true;
+  bool homeColor = false;
 
-  bool inProgColor = true;
+  bool inProgColor = false;
 
-  bool aboutColor = true;
+  bool aboutColor = false;
 
-  bool contactColor = true;
+  bool contactColor = false;
+  bool profileColor = false;
+
+  Widget _buildUserAccountsDrawerHeader() {
+    List<UserModel> userModel = showprovider.getUserModeList;
+    return Column(
+      children: userModel.map((e) {
+        return UserAccountsDrawerHeader(
+          accountName: Text(
+            e.username,
+            style: const TextStyle(color: Colors.black),
+          ),
+          currentAccountPicture: CircleAvatar(
+            backgroundImage: e.userimage == null
+                ? const AssetImage('assets/user.jpg')
+                : NetworkImage(e.userimage) as ImageProvider,
+          ),
+          decoration: const BoxDecoration(
+            color: Color(0xfff2f2f2),
+          ),
+          accountEmail: Text(
+            e.useremail,
+            style: const TextStyle(color: Colors.black),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   Widget _buildMyDrawer() {
     return Drawer(
       child: ListView(
         children: <Widget>[
-          const UserAccountsDrawerHeader(
-            accountName: Text(
-              'Rfifa Anouar',
-              style: TextStyle(color: Colors.black),
-            ),
-            currentAccountPicture: CircleAvatar(
-              backgroundImage: AssetImage('assets/user.jpg'),
-            ),
-            decoration: BoxDecoration(
-              color: Color(0xfff2f2f2),
-            ),
-            accountEmail: Text(
-              'anouarrafifa99@gmail.com',
-              style: TextStyle(color: Colors.black),
-            ),
-          ),
+          _buildUserAccountsDrawerHeader(),
           ListTile(
             selected: homeColor,
             onTap: () {
@@ -80,6 +95,7 @@ class _HomePageState extends State<HomePage> {
                 inProgColor = false;
                 aboutColor = false;
                 homeColor = true;
+                profileColor = false;
               });
             },
             leading: const Icon(Icons.home),
@@ -93,6 +109,7 @@ class _HomePageState extends State<HomePage> {
                 homeColor = false;
                 aboutColor = false;
                 inProgColor = true;
+                profileColor = false;
               });
             },
             leading: const Icon(Icons.notification_important),
@@ -106,10 +123,30 @@ class _HomePageState extends State<HomePage> {
                 inProgColor = false;
                 homeColor = false;
                 aboutColor = true;
+                profileColor = false;
               });
             },
             leading: const Icon(Icons.info),
             title: const Text('About'),
+          ),
+          ListTile(
+            selected: profileColor,
+            onTap: () {
+              setState(() {
+                contactColor = false;
+                inProgColor = false;
+                aboutColor = false;
+                homeColor = false;
+                profileColor = true;
+              });
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => ProfileScreen(),
+                ),
+              );
+            },
+            leading: const Icon(Icons.person),
+            title: const Text('Profile'),
           ),
           ListTile(
             selected: contactColor,
@@ -119,6 +156,7 @@ class _HomePageState extends State<HomePage> {
                 inProgColor = false;
                 aboutColor = false;
                 homeColor = false;
+                profileColor = false;
               });
             },
             leading: const Icon(Icons.phone),
@@ -168,6 +206,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: ((context) => ListShows(
+                        isCategory: true,
                         name: 'Anime Category',
                         snapShot: animecat,
                       )),
@@ -196,6 +235,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: ((context) => ListShows(
+                        isCategory: true,
                         name: 'Anime Category',
                         snapShot: mangacat,
                       )),
@@ -224,6 +264,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: ((context) => ListShows(
+                        isCategory: true,
                         name: 'Anime Category',
                         snapShot: filmcat,
                       )),
@@ -252,6 +293,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: ((context) => ListShows(
+                        isCategory: true,
                         name: 'Anime Category',
                         snapShot: seriecat,
                       )),
@@ -314,6 +356,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (ctx) => ListShows(
+                      isCategory: false,
                       name: 'Featured',
                       snapShot: featureproduct,
                     ),
@@ -402,6 +445,7 @@ class _HomePageState extends State<HomePage> {
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
                           builder: (ctx) => ListShows(
+                            isCategory: false,
                             name: 'New Achieves',
                             snapShot: newachieveproduct,
                           ),
@@ -505,6 +549,8 @@ class _HomePageState extends State<HomePage> {
     categprovider.getFilmIconData();
     categprovider.getSerieIconData();
     categprovider.getMangaIconData();
+    /////usermodel provider
+    showprovider.getUserData();
     return Scaffold(
       key: _key,
       drawer: _buildMyDrawer(),
@@ -526,13 +572,6 @@ class _HomePageState extends State<HomePage> {
           },
         ),
         actions: <Widget>[
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.search,
-              color: Colors.black,
-            ),
-          ),
           NotificationButton(),
         ],
       ),

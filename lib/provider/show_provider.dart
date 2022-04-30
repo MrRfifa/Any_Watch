@@ -1,5 +1,7 @@
 import 'package:anime_info/model/cartmodel.dart';
+import 'package:anime_info/model/usermodel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../model/product.dart';
@@ -9,6 +11,21 @@ class ShowProvider with ChangeNotifier {
   late CartModel cartModel;
   List<CartModel> checkOutModelList = [];
   late CartModel checkOutModel;
+
+  void deleteCartProduct(int index) {
+    cartModelList.removeAt(index);
+    notifyListeners();
+  }
+
+  void deleteCheckOutProduct(int index) {
+    checkOutModelList.removeAt(index);
+    notifyListeners();
+  }
+
+  void clearCheckOutProduct() {
+    checkOutModelList.clear();
+    notifyListeners();
+  }
 
   void getCheckOutData({
     required String name,
@@ -168,5 +185,51 @@ class ShowProvider with ChangeNotifier {
 
   int get getNotificationIndex {
     return notificationList.length;
+  }
+
+  late UserModel usermodel;
+  List<UserModel> userModelList = [];
+  ////usermodel data
+  Future<void> getUserData() async {
+    List<UserModel> tempList = [];
+    User? currentuser = FirebaseAuth.instance.currentUser;
+    QuerySnapshot userSnapshot =
+        await FirebaseFirestore.instance.collection('user').get();
+    userSnapshot.docs.forEach(
+      (element) {
+        if (currentuser?.uid == element.get('UserId')) {
+          usermodel = UserModel(
+            useraddress: element.get('Useradress'),
+            userimage: element.get('Userimage'),
+            username: element.get('Username'),
+            useremail: element.get('Useremail'),
+            usergender: element.get('Gender'),
+            userphone: element.get('Phone Number'),
+          );
+          tempList.add(usermodel);
+        }
+        userModelList = tempList;
+      },
+    );
+    notifyListeners();
+  }
+
+  List<UserModel> get getUserModeList {
+    return userModelList;
+  }
+
+  //end usermodel
+  ///search in products
+  late List<Product> searchList;
+  void getSearchList({required List<Product> list}) {
+    searchList = list;
+  }
+
+  List<Product> searchProductList(String query) {
+    List<Product> search_by_show = searchList.where((element) {
+      return element.name.toUpperCase().contains(query) ||
+          element.name.toLowerCase().contains(query);
+    }).toList();
+    return search_by_show;
   }
 }

@@ -1,9 +1,11 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:anime_info/screens/login.dart';
+import 'package:anime_info/screens/profilescreen.dart';
+import 'package:anime_info/widgets/passwordTextformfield.dart';
+import 'package:anime_info/widgets/textformfield.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -19,27 +21,97 @@ String p =
 
 RegExp regExp = new RegExp(p);
 bool obserText = true;
+bool isMale = true;
+
+final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+late final TextEditingController email = TextEditingController();
+late final TextEditingController username = TextEditingController();
+late final TextEditingController phonenumber = TextEditingController();
+late final TextEditingController password = TextEditingController();
+late final TextEditingController address = TextEditingController();
+GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
 class _SignUpState extends State<SignUp> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String email = '';
-  String password = '';
-  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
   void validation() async {
-    final FormState? _form = _formKey.currentState;
-    if (!_form!.validate()) {
+    if (username.text.isEmpty &&
+        email.text.isEmpty &&
+        phonenumber.text.isEmpty &&
+        password.text.isEmpty &&
+        address.text.isEmpty) {
+      _scaffoldKey.currentState!.showSnackBar(
+        SnackBar(
+          content: Text('All fields are empty'),
+        ),
+      );
+    } else if (username.text.length < 6) {
+      _scaffoldKey.currentState!.showSnackBar(
+        SnackBar(
+          content: Text('Username must be at least 6'),
+        ),
+      );
+    } else if (email.text.isEmpty) {
+      _scaffoldKey.currentState!.showSnackBar(
+        SnackBar(
+          content: Text('Email is empty'),
+        ),
+      );
+    } else if (!regExp.hasMatch(email.text)) {
+      _scaffoldKey.currentState!.showSnackBar(
+        SnackBar(
+          content: Text('Invalid Email'),
+        ),
+      );
+    } else if (password.text.isEmpty) {
+      _scaffoldKey.currentState!.showSnackBar(
+        SnackBar(
+          content: Text('Password is empty'),
+        ),
+      );
+    } else if (password.text.length < 8) {
+      _scaffoldKey.currentState!.showSnackBar(
+        SnackBar(
+          content: Text('Password is too short'),
+        ),
+      );
+    } else if (phonenumber.text.length < 8 || phonenumber.text.length > 8) {
+      _scaffoldKey.currentState!.showSnackBar(
+        SnackBar(
+          content: Text('Phone number at least 8 digits'),
+        ),
+      );
+    } else if (address.text.isEmpty) {
+      _scaffoldKey.currentState!.showSnackBar(
+        SnackBar(
+          content: Text('Empty address'),
+        ),
+      );
+    } else {
       try {
         UserCredential result = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(email: email, password: password);
+            .createUserWithEmailAndPassword(
+                email: email.text, password: password.text);
         User user = result.user!;
-        print(user.uid);
+        FirebaseFirestore.instance.collection('user').doc(user.uid).set(
+          {
+            'Username': username.text,
+            'UserId': user.uid,
+            'Useremail': email.text,
+            'Useraddress': address.text,
+            'Gender': isMale == true ? 'Male' : 'Female',
+            'Phone Number': phonenumber.text,
+          },
+        );
       } on PlatformException catch (e) {
-        print(e.message);
-        /*ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('in use')));*/
+        _scaffoldKey.currentState!.showSnackBar(
+          SnackBar(
+            content: Text(
+              e.message.toString(),
+            ),
+          ),
+        );
       }
-    } else {}
+    }
   }
 
   @override
@@ -54,7 +126,7 @@ class _SignUpState extends State<SignUp> {
             child: Column(
               children: <Widget>[
                 Container(
-                  height: 110,
+                  height: 260,
                   width: double.infinity,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -72,159 +144,109 @@ class _SignUpState extends State<SignUp> {
                 const SizedBox(
                   height: 20,
                 ),
-                Container(
-                  height: 400,
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  width: double.infinity,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      TextFormField(
-                        validator: (value) {
-                          if (value == '') {
-                            return 'Please fill Username';
-                          } else if (value!.length < 6) {
-                            return 'Username is too short';
-                          }
-                          return '';
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Username',
-                          suffixIcon: GestureDetector(
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                            },
-                            child: Icon(
-                              Icons.person,
-                              color: Colors.black,
-                            ),
-                          ),
-                          hintStyle: TextStyle(color: Colors.black),
-                          border: OutlineInputBorder(),
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    height: 500,
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    width: double.infinity,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        MyTextFormField(
+                          controller: username,
+                          name: 'Username',
                         ),
-                      ),
-                      TextFormField(
-                        onChanged: ((value) {
-                          setState(() {
-                            email = value;
-                          });
-                        }),
-                        validator: (value) {
-                          if (value == '') {
-                            return 'Please fill Email';
-                          } else if (!regExp.hasMatch(value!)) {
-                            return 'Email is invalid';
-                          }
-                          return '';
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'email',
-                          suffixIcon: GestureDetector(
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                            },
-                            child: Icon(
-                              Icons.email,
-                              color: Colors.black,
-                            ),
-                          ),
-                          hintStyle: TextStyle(color: Colors.black),
-                          border: OutlineInputBorder(),
+                        MyTextFormField(
+                          controller: email,
+                          name: 'Email',
                         ),
-                      ),
-                      TextFormField(
-                        validator: (value) {
-                          if (value == '') {
-                            return 'Please fill Phone number';
-                          } else if (value!.length < 8) {
-                            return 'Phone number must be 8';
-                          }
-                          return '';
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Phone Number',
-                          suffixIcon: GestureDetector(
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                            },
-                            child: Icon(
-                              Icons.phone,
-                              color: Colors.black,
-                            ),
-                          ),
-                          hintStyle: TextStyle(color: Colors.black),
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      TextFormField(
-                        obscureText: obserText,
-                        onChanged: ((value) {
-                          setState(() {
-                            password = value;
-                          });
-                        }),
-                        validator: (value) {
-                          if (value == '') {
-                            return 'Please fill Password';
-                          } else if (value!.length < 8) {
-                            return 'Weak Password';
-                          }
-                          return '';
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Password',
-                          suffixIcon: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                obserText = !obserText;
-                              });
-                              FocusScope.of(context).unfocus();
-                            },
-                            child: Icon(
-                              obserText == true
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Colors.black,
-                            ),
-                          ),
-                          border: const OutlineInputBorder(),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        height: 45,
-                        width: double.infinity,
-                        child: RaisedButton(
-                          onPressed: () {
-                            validation();
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isMale = !isMale;
+                            });
                           },
-                          child: Text('Register'),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Text('I have already an account!'),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (ctx) => Login()));
-                            },
-                            child: Text(
-                              'Login',
-                              style: TextStyle(
-                                  color: Colors.cyan,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
+                          child: Container(
+                            height: 60,
+                            padding: EdgeInsets.only(
+                              left: 15,
+                            ),
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                              color: Colors.grey,
+                            )),
+                            child: Center(
+                              child: Row(
+                                children: [
+                                  Text(
+                                    isMale == true ? 'Male' : 'Female',
+                                    style: TextStyle(
+                                      color: Colors.black87,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ],
-                      )
-                    ],
+                        ),
+                        MyTextFormField(
+                          controller: phonenumber,
+                          name: 'Address',
+                        ),
+                        MyTextFormField(
+                          controller: phonenumber,
+                          name: 'Phone Number',
+                        ),
+                        PasswordTextFormField(
+                          controller: password,
+                          name: 'Password',
+                          obserText: obserText,
+                          onTap: () {
+                            FocusScope.of(context).unfocus();
+                            setState(() {
+                              obserText = !obserText;
+                            });
+                          },
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Container(
+                          height: 45,
+                          width: double.infinity,
+                          child: RaisedButton(
+                            onPressed: () {
+                              validation();
+                            },
+                            child: Text('Register'),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Text('I have already an account!'),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (ctx) => Login()));
+                              },
+                              child: Text(
+                                'Login',
+                                style: TextStyle(
+                                    color: Colors.cyan,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ],

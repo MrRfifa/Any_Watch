@@ -15,6 +15,8 @@ String p =
 
 RegExp regExp = new RegExp(p);
 bool obserText = true;
+late final TextEditingController email = TextEditingController();
+late final TextEditingController password = TextEditingController();
 
 class _LoginState extends State<Login> {
   Widget _button(String name, Function onPressed) {
@@ -34,8 +36,37 @@ class _LoginState extends State<Login> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   void validation() async {
-    final FormState? _form = _formKey.currentState;
-    if (!_form!.validate()) {
+    if (email.isEmpty && password.isEmpty) {
+      _scaffoldKey.currentState!.showSnackBar(
+        SnackBar(
+          content: Text('All fields are empty'),
+        ),
+      );
+    } else if (email.isEmpty) {
+      _scaffoldKey.currentState!.showSnackBar(
+        SnackBar(
+          content: Text('Email is empty'),
+        ),
+      );
+    } else if (!regExp.hasMatch(email)) {
+      _scaffoldKey.currentState!.showSnackBar(
+        SnackBar(
+          content: Text('Invalid Email'),
+        ),
+      );
+    } else if (password.isEmpty) {
+      _scaffoldKey.currentState!.showSnackBar(
+        SnackBar(
+          content: Text('Password is empty'),
+        ),
+      );
+    } else if (password.length < 8) {
+      _scaffoldKey.currentState!.showSnackBar(
+        SnackBar(
+          content: Text('Password is too short'),
+        ),
+      );
+    } else {
       try {
         UserCredential result = await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password);
@@ -43,12 +74,10 @@ class _LoginState extends State<Login> {
         print(user.uid);
       } on PlatformException catch (e) {
         print(e.message);
-        /*_scaffoldKey.currentState!.showSnackBar(SnackBar(
+        _scaffoldKey.currentState!.showSnackBar(SnackBar(
             content: Text(e.message.toString()),
-            duration: Duration(milliseconds: 600)));*/
+            duration: Duration(milliseconds: 600)));
       }
-    } else {
-      print('no');
     }
   }
 

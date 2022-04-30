@@ -1,9 +1,10 @@
 import 'package:anime_info/provider/show_provider.dart';
 import 'package:anime_info/screens/homepage.dart';
 import 'package:anime_info/widgets/cartsingleproduct.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../widgets/notification_but.dart';
 
 class CheckOut extends StatefulWidget {
@@ -12,6 +13,7 @@ class CheckOut extends StatefulWidget {
 }
 
 class _CheckOutState extends State<CheckOut> {
+  GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   late ShowProvider shpro;
   Widget _buildBottomDetail(
       {required String startName, required String endName}) {
@@ -20,22 +22,70 @@ class _CheckOutState extends State<CheckOut> {
       children: <Widget>[
         Text(
           startName,
-          style: TextStyle(fontSize: 18),
+          style: const TextStyle(fontSize: 18),
         ),
         Text(
           endName,
-          style: TextStyle(fontSize: 18),
+          style: const TextStyle(fontSize: 18),
         ),
       ],
     );
   }
 
+  late User user;
+  late double total;
+  late int index;
+  Widget _buildButton() {
+    return Column(
+      children: shpro.userModelList.map((e) {
+        return RaisedButton(
+          onPressed: () {
+            if (shpro.checkOutModelList.isNotEmpty) {
+              FirebaseFirestore.instance.collection('Order').doc(user.uid).set({
+                'Product': shpro.checkOutModelList
+                    .map((c) => {
+                          'Product Name': c.name,
+                          'Product Type': c.type,
+                          'Product Price': c.price,
+                          'Product Quantity': c.quantity,
+                        })
+                    .toList(),
+                'Total Price': total.toStringAsFixed(2),
+                'Username': e.username,
+                'Useremail': e.useremail,
+                'Useraddress': e.useraddress,
+                'Userphonenumber': e.userphone,
+                'Userid': user.uid,
+              });
+              shpro.clearCheckOutProduct();
+            } else {
+              _scaffoldKey.currentState!.showSnackBar(
+                SnackBar(
+                  content: Text('No item yet'),
+                ),
+              );
+            }
+          },
+          child: const Text(
+            'Buy',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+          color: const Color.fromARGB(204, 40, 91, 117),
+        );
+      }).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    user = FirebaseAuth.instance.currentUser!;
     double subtotal = 0;
     double discount = 5;
     double discountRupees;
-    double total;
+
     shpro = Provider.of<ShowProvider>(context);
     shpro.getCheckOutModelList.forEach(
       ((element) {
@@ -44,27 +94,23 @@ class _CheckOutState extends State<CheckOut> {
     );
     discountRupees = (discount / 100) * subtotal;
     total = subtotal - discountRupees;
+    if (shpro.getCheckOutModelList.isEmpty) {
+      total = 0.0;
+      discountRupees = 0.0;
+    }
+
     return Scaffold(
+      key: _scaffoldKey,
       bottomNavigationBar: Container(
         height: 90,
         width: double.infinity,
-        margin: EdgeInsets.symmetric(horizontal: 10),
-        padding: EdgeInsets.only(bottom: 50),
-        child: RaisedButton(
-          onPressed: () {},
-          child: Text(
-            'Buy',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-            ),
-          ),
-          color: Color.fromARGB(204, 40, 91, 117),
-        ),
+        margin: const EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.only(bottom: 50),
+        child: _buildButton(),
       ),
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
+        title: const Text(
           'Checkout',
           style: TextStyle(color: Colors.black),
         ),
@@ -88,7 +134,7 @@ class _CheckOutState extends State<CheckOut> {
         ],
       ),
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -97,13 +143,16 @@ class _CheckOutState extends State<CheckOut> {
               child: Container(
                 child: ListView.builder(
                   itemCount: shpro.getCheckOutModelList.length,
-                  itemBuilder: (ctx, index) {
+                  itemBuilder: (ctx, myIndex) {
+                    index = myIndex;
                     return CartSingleProduct(
-                      image: shpro.getCheckOutModelList[index].image,
-                      name: shpro.getCheckOutModelList[index].name,
-                      type: shpro.getCheckOutModelList[index].type,
-                      quantity: shpro.getCheckOutModelList[index].quantity,
-                      price: shpro.getCheckOutModelList[index].price,
+                      isCount: true,
+                      index: myIndex,
+                      image: shpro.getCheckOutModelList[myIndex].image,
+                      name: shpro.getCheckOutModelList[myIndex].name,
+                      type: shpro.getCheckOutModelList[myIndex].type,
+                      quantity: shpro.getCheckOutModelList[myIndex].quantity,
+                      price: shpro.getCheckOutModelList[myIndex].price,
                     );
                   },
                 ),

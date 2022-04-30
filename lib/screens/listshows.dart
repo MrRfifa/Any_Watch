@@ -1,14 +1,27 @@
 import 'package:anime_info/model/product.dart';
+import 'package:anime_info/provider/category_provider.dart';
+import 'package:anime_info/provider/show_provider.dart';
 import 'package:anime_info/screens/homepage.dart';
+import 'package:anime_info/screens/search_by_category.dart';
+import 'package:anime_info/screens/search_by_show.dart';
 import 'package:anime_info/widgets/singleproduct.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ListShows extends StatelessWidget {
-  final name;
+  final String name;
+  bool isCategory = true;
   final List<Product> snapShot;
-  ListShows({this.name, required this.snapShot});
+  ListShows({
+    required this.name,
+    required this.snapShot,
+    required this.isCategory,
+  });
   @override
   Widget build(BuildContext context) {
+    CategoryProvider categoryProvider = Provider.of<CategoryProvider>(context);
+    ShowProvider showProvider = Provider.of<ShowProvider>(context);
+    //final Orientation orientation = MediaQuery.of(context).orientation;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -30,11 +43,29 @@ class ListShows extends StatelessWidget {
           color: Colors.black,
         ),
         actions: <Widget>[
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.search),
-            color: Colors.black,
-          ),
+          isCategory == true
+              ? IconButton(
+                  onPressed: () {
+                    categoryProvider.getSearchList(list: snapShot);
+                    showSearch(
+                      context: context,
+                      delegate: SearchByCategory(),
+                    );
+                  },
+                  icon: const Icon(Icons.search),
+                  color: Colors.black,
+                )
+              : IconButton(
+                  onPressed: () {
+                    showProvider.getSearchList(list: snapShot);
+                    showSearch(
+                      context: context,
+                      delegate: SearchByShow(),
+                    );
+                  },
+                  icon: const Icon(Icons.search),
+                  color: Colors.black,
+                ),
           IconButton(
             onPressed: () {},
             icon: const Icon(Icons.notifications_none),

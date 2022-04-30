@@ -72,6 +72,7 @@ class _CartScreenState extends State<CartScreen> {
         itemCount: shpro.getCheckOutModelListLength,
         itemBuilder: (ctx, index) => CartSingleProduct(
           isCount: false,
+          index: index,
           image: shpro.getCheckOutModelList[index].image,
           name: shpro.getCheckOutModelList[index].name,
           type: shpro.getCheckOutModelList[index].type,

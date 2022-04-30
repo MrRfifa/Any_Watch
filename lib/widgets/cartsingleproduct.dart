@@ -10,6 +10,7 @@ class CartSingleProduct extends StatefulWidget {
   int quantity;
   final bool? isCount;
   final int price;
+  final int index;
   CartSingleProduct({
     required this.image,
     required this.name,
@@ -17,12 +18,13 @@ class CartSingleProduct extends StatefulWidget {
     required this.quantity,
     this.isCount,
     required this.price,
+    required this.index,
   });
   @override
   State<CartSingleProduct> createState() => _CartSingleProductState();
 }
 
-TextStyle myStyle = TextStyle(fontSize: 18);
+TextStyle myStyle = const TextStyle(fontSize: 18);
 late ShowProvider shpro;
 
 class _CartSingleProductState extends State<CartSingleProduct> {
@@ -51,43 +53,68 @@ class _CartSingleProductState extends State<CartSingleProduct> {
                 ),
                 Container(
                   height: 140,
-                  width: 200,
+                  width: widget.isCount == true ? 244 : 270,
                   child: ListTile(
                     title: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(widget.name),
-                        Text(widget.type),
+                        Container(
+                          height: 20,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                widget.name,
+                                style: myStyle,
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  widget.isCount == false
+                                      ? shpro.deleteCartProduct(widget.index)
+                                      : shpro
+                                          .deleteCheckOutProduct(widget.index);
+                                },
+                                icon: const Icon(
+                                  Icons.close,
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
                         Text(
-                          '5\$',
-                          style: TextStyle(
-                              color: Color(0xff9b96d6),
+                          widget.type,
+                          style: myStyle,
+                        ),
+                        Text(
+                          '${widget.price.toString()}\$',
+                          style: const TextStyle(
+                              color: const Color(0xff9b96d6),
                               fontWeight: FontWeight.bold),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            SizedBox(
+                            const SizedBox(
                               height: 10,
                             ),
-                            Text(
+                            const Text(
                               "1 month costs 5\$",
                               style: TextStyle(fontSize: 18),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 5,
                             ),
                             Container(
                               height: 35,
                               width: 140,
-                              color: Color.fromARGB(204, 40, 91, 117),
+                              color: const Color.fromARGB(204, 40, 91, 117),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: <Widget>[
                                   GestureDetector(
-                                    child: Icon(
+                                    child: const Icon(
                                       Icons.remove,
                                       color: Colors.white,
                                     ),
@@ -110,11 +137,11 @@ class _CartSingleProductState extends State<CartSingleProduct> {
                                   ),
                                   Text(
                                     widget.quantity.toString() + ' Month(s)',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 18, color: Colors.white),
                                   ),
                                   GestureDetector(
-                                    child: Icon(
+                                    child: const Icon(
                                       Icons.add,
                                       color: Colors.white,
                                     ),
