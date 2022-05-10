@@ -36,9 +36,8 @@ class SearchByShow extends SearchDelegate<void> {
 
   @override
   Widget buildResults(BuildContext context) {
-    CategoryProvider showprovider = Provider.of(context);
-    //List<Product> searchProduct = showprovider.searchAnimeList(query);
-    List<Product> searchProduct = [];
+    ShowProvider showprovider = Provider.of(context);
+    List<Product> searchProduct = showprovider.searchProductList(query);
     return GridView.count(
       childAspectRatio: 0.75,
       crossAxisCount: 2,
@@ -72,9 +71,8 @@ class SearchByShow extends SearchDelegate<void> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    CategoryProvider showprovider = Provider.of(context);
-    //List<Product> searchProduct = showprovider.searchAnimeList(query);
-    List<Product> searchProduct = [];
+    ShowProvider showprovider = Provider.of(context);
+    List<Product> searchProduct = showprovider.searchProductList(query);
     return GridView.count(
       childAspectRatio: 0.75,
       crossAxisCount: 2,

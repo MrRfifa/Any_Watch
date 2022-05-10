@@ -107,9 +107,7 @@ class ListShows extends StatelessWidget {
               color: Colors.black,
             ),
             onPressed: () {
-              categoryProvider.getSearchList(
-                list: snapShot,
-              );
+              showProvider.getSearchList(list: snapShot);
               showSearch(
                 context: context,
                 delegate: SearchByShow(),
