@@ -187,6 +187,10 @@ class ShowProvider with ChangeNotifier {
     return notificationList.length;
   }
 
+  get getNotificationList {
+    return notificationList;
+  }
+
   late UserModel usermodel;
   List<UserModel> userModelList = [];
   ////usermodel data
@@ -197,9 +201,9 @@ class ShowProvider with ChangeNotifier {
         await FirebaseFirestore.instance.collection('user').get();
     userSnapshot.docs.forEach(
       (element) {
-        if (currentuser?.uid == element.get('UserId')) {
+        if (currentuser!.uid == element.get('UserId')) {
           usermodel = UserModel(
-            useraddress: element.get('Useradress'),
+            useraddress: element.get('Useraddress'),
             userimage: element.get('Userimage'),
             username: element.get('Username'),
             useremail: element.get('Useremail'),
@@ -220,9 +224,10 @@ class ShowProvider with ChangeNotifier {
 
   //end usermodel
   ///search in products
-  late List<Product> searchList;
+  List<Product> searchList = [];
   void getSearchList({required List<Product> list}) {
     searchList = list;
+    notifyListeners();
   }
 
   List<Product> searchProductList(String query) {

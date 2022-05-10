@@ -1,4 +1,3 @@
-import 'package:anime_info/provider/show_provider.dart';
 import 'package:anime_info/screens/homepage.dart';
 import 'package:anime_info/screens/signup.dart';
 import 'package:anime_info/widgets/notification_but.dart';
@@ -6,65 +5,61 @@ import 'package:anime_info/widgets/textformfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../model/usermodel.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+
+import '../widgets/mybutton.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-String p =
-    r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-
-RegExp regExp = new RegExp(p);
-
-bool isMale = false;
-late TextEditingController phoneNumber;
-late TextEditingController address;
-late TextEditingController userName;
-
 class _ProfileScreenState extends State<ProfileScreen> {
-  late ShowProvider shpro;
-  File? _pickedImage;
+  static String p =
+      r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+
+  RegExp regExp = new RegExp(p);
+
+  bool isMale = false;
+  late UserModel userModel;
+  late TextEditingController phoneNumber;
+  late TextEditingController address;
+  late TextEditingController userName;
+  File _pickedImage = new File('');
   late PickedFile _image;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  void finalValidation() async {
-    await _uploadImage(image: _pickedImage!);
-    await userDetailUpdate();
-  }
 
   void validation() async {
-    if (email.text.isEmpty && password.text.isEmpty) {
+    if (userName.text.isEmpty && phoneNumber.text.isEmpty) {
       _scaffoldKey.currentState!.showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('All fields are empty'),
         ),
       );
     } else if (userName.text.isEmpty) {
       _scaffoldKey.currentState!.showSnackBar(
-        SnackBar(
-          content: Text('Username is empty'),
+        const SnackBar(
+          content: const Text('Username is empty'),
         ),
       );
     } else if (userName.text.length < 6) {
       _scaffoldKey.currentState!.showSnackBar(
-        SnackBar(
-          content: Text('Username must be 6'),
+        const SnackBar(
+          content: const Text('Username must be 6'),
         ),
       );
-    } else if (phoneNumber.text.length < 11 || phoneNumber.text.length > 11) {
+    } else if (phoneNumber.text.length < 8 || phoneNumber.text.length > 8) {
       _scaffoldKey.currentState!.showSnackBar(
-        SnackBar(
-          content: Text("Phone Number Must Be 11 "),
+        const SnackBar(
+          content: Text("Phone Number Must Be 8 "),
         ),
       );
     } else {
-      finalValidation();
+      userDetailUpdate();
     }
   }
 
@@ -72,16 +67,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool centerCircle = false;
   var imageMap;
   Future<void> userDetailUpdate() async {
+    setState(() {
+      centerCircle = true;
+    });
+    _pickedImage != null
+        ? imageMap = await _uploadImage(image: _pickedImage)
+        : Container();
     FirebaseFirestore.instance.collection('user').doc(user!.uid).update(
       {
-        "UserName": userName.text,
-        "UserGender": isMale == true ? "Male" : "Female",
-        "UserNumber": phoneNumber.text,
-        "UserImage": imageUrl == null ? '' : imageUrl,
-        "UserAddress": address.text,
+        "Username": userName.text,
+        "Gender": isMale == true ? "Male" : "Female",
+        "Phone Number": phoneNumber.text,
+        "Userimage": imageMap,
+        "Useraddress": address.text,
       },
     );
-    return null;
     setState(() {
       centerCircle = false;
     });
@@ -94,23 +94,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _image = (await ImagePicker().getImage(source: source))!;
 
     if (_image != null) {
-      _pickedImage = File(_image.path);
+      setState(() {
+        _pickedImage = File(_image.path);
+      });
     }
   }
 
   late String imageUrl;
-  Future<void> _uploadImage({required File image}) async {
-    User? user = FirebaseAuth.instance.currentUser;
+  Future<String> _uploadImage({required File image}) async {
     FirebaseStorage storage = FirebaseStorage.instance;
-
-    Reference ref = storage.ref().child('userImage/{$user.uid}');
+    Reference ref = storage.ref().child('userImage/$userUid');
     UploadTask uploadTask = ref.putFile(image);
-    TaskSnapshot snapshot = await uploadTask.whenComplete(() => null);
+    TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
     imageUrl = await snapshot.ref.getDownloadURL();
+    return imageUrl;
   }
 
-  Widget _buildSingleContainer(
-      {required String startText, required String endText}) {
+  void getUserUid() {
+    User? myUser = FirebaseAuth.instance.currentUser;
+    userUid = myUser!.uid;
+  }
+
+  Widget _buildSingleContainer({
+    required String startText,
+    required String endText,
+    required Color color,
+  }) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(30),
@@ -122,12 +131,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
+          color: edit == true ? color : Colors.white,
+          borderRadius: edit == false
+              ? BorderRadius.circular(30)
+              : BorderRadius.circular(0),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
+          children: [
             Text(
               startText,
               style: const TextStyle(
@@ -168,56 +179,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   bool edit = false;
   late String userImage;
+  late String userUid;
   Widget _buildContainerPart() {
-    List<UserModel> userModel = showprovider.getUserModeList;
-    return Column(
-      children: userModel.map((e) {
-        userImage = e.userimage;
-        address = TextEditingController(text: e.useraddress);
-        userName = TextEditingController(text: e.username);
-        phoneNumber = TextEditingController(text: e.userphone);
-        if (e.usergender == 'Male') {
-          setState(() {
-            isMale = true;
-          });
-        } else {
-          setState(() {
-            isMale = false;
-          });
-        }
-        return Container(
-          height: 300,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              _buildSingleContainer(
-                startText: 'Name',
-                endText: e.username,
-              ),
-              _buildSingleContainer(
-                startText: 'Email',
-                endText: e.useremail,
-              ),
-              _buildSingleContainer(
-                startText: 'Phone Number',
-                endText: e.userphone,
-              ),
-              _buildSingleContainer(
-                startText: 'Gender',
-                endText: e.usergender,
-              ),
-              _buildSingleContainer(
-                startText: 'Address',
-                endText: e.useraddress,
-              ),
-            ],
+    address = TextEditingController(text: userModel.useraddress);
+    userName = TextEditingController(text: userModel.username);
+    phoneNumber = TextEditingController(text: userModel.userphone);
+    if (userModel.usergender == 'Male') {
+      isMale = true;
+    } else {
+      isMale = false;
+    }
+    return Container(
+      height: double.infinity,
+      width: double.infinity,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          _buildSingleContainer(
+            startText: 'Name',
+            endText: userModel.username,
+            color: Colors.amber,
           ),
-        );
-      }).toList(),
+          _buildSingleContainer(
+            startText: 'Email',
+            endText: userModel.useremail,
+            color: Colors.amber,
+          ),
+          _buildSingleContainer(
+            startText: 'Phone Number',
+            endText: userModel.userphone,
+            color: Colors.amber,
+          ),
+          _buildSingleContainer(
+            startText: 'Gender',
+            endText: userModel.usergender,
+            color: Colors.amber,
+          ),
+          _buildSingleContainer(
+            startText: 'Address',
+            endText: userModel.useraddress,
+            color: Colors.amber,
+          ),
+        ],
+      ),
     );
   }
 
-  Future<void> myDialogBox() {
+  Future<void> myDialogBox(context) {
     return showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -251,45 +259,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildTextFormFieldPart() {
-    List<UserModel> userModel = showprovider.getUserModeList;
-    return Column(
-      children: userModel.map((e) {
-        return Container(
-          height: 300,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              MyTextFormField(
-                controller: username,
-                name: 'Username',
-              ),
-              _buildSingleContainer(
-                startText: 'Email',
-                endText: e.useremail,
-              ),
-              _buildSingleContainer(
-                startText: 'Email',
-                endText: e.usergender,
-              ),
-              MyTextFormField(
-                controller: phonenumber,
-                name: 'Phone Number',
-              ),
-              MyTextFormField(
-                controller: address,
-                name: 'Address',
-              ),
-            ],
+    return Container(
+      height: double.infinity,
+      width: double.infinity,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          MyTextFormField(
+            controller: username,
+            name: 'Username',
           ),
-        );
-      }).toList(),
+          _buildSingleContainer(
+            startText: 'Email',
+            endText: userModel.useremail,
+            color: Colors.grey,
+          ),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                isMale = !isMale;
+              });
+            },
+            child: _buildSingleContainer(
+              startText: 'Gender',
+              endText: isMale == true ? 'Male' : 'Female',
+              color: Colors.white,
+            ),
+          ),
+          MyTextFormField(
+            controller: phonenumber,
+            name: 'Phone Number',
+          ),
+          MyTextFormField(
+            controller: address,
+            name: 'Address',
+          ),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    shpro = Provider.of(context);
+    getUserUid();
     return Scaffold(
+      resizeToAvoidBottomInset: true,
+      key: _scaffoldKey,
       backgroundColor: const Color(0xfff8f8f8),
       appBar: AppBar(
         leading: edit == true
@@ -326,108 +341,152 @@ class _ProfileScreenState extends State<ProfileScreen> {
           edit == false
               ? NotificationButton()
               : IconButton(
-                  onPressed: () {
-                    _uploadImage(image: _pickedImage!);
-                    setState(() {
-                      edit = false;
-                    });
-                  },
-                  icon: IconButton(
-                    icon: Icon(
-                      Icons.check,
-                      size: 30,
-                    ),
+                  icon: Icon(
+                    Icons.check,
+                    size: 30,
                     color: Color(0xff746bc9),
-                    onPressed: () {
-                      validation();
-                    },
                   ),
+                  onPressed: () {
+                    validation();
+                  },
                 ),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: Container(
-          height: double.infinity,
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 30),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Stack(
-                children: <Widget>[
-                  Container(
-                    height: 130,
-                    width: double.infinity,
-                    child: Column(
-                      children: <Widget>[
-                        CircleAvatar(
-                          maxRadius: 55,
-                          backgroundImage: userImage == null
-                              ? AssetImage('assets/user.jpg')
-                              : NetworkImage(userImage) as ImageProvider,
-                        ),
-                      ],
-                    ),
-                  ),
-                  edit == true
-                      ? Padding(
-                          padding: const EdgeInsets.only(
-                            left: 215,
-                            top: 60,
-                          ),
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
-                                myDialogBox();
-                              },
-                              child: const CircleAvatar(
-                                backgroundColor: Colors.transparent,
-                                child: Icon(
-                                  Icons.camera_alt,
-                                  color: Color(0xff746bc9),
+      body: centerCircle == false
+          ? ListView(
+              children: [
+                StreamBuilder(
+                  stream:
+                      FirebaseFirestore.instance.collection('user').snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    var myDoc = snapshot.data!.docs;
+                    myDoc.forEach((checkDocs) {
+                      if (checkDocs.get('UserId') == userUid) {
+                        ////verify userid in firebase
+                        userModel = UserModel(
+                          username: checkDocs.get('Username'),
+                          useremail: checkDocs.get('Useremail'),
+                          usergender: checkDocs.get('Gender'),
+                          userphone: checkDocs.get('Phone Number'),
+                          userimage: checkDocs.get('Userimage'),
+                          useraddress: checkDocs.get('Useraddress'),
+                        );
+                      }
+                    });
+                    return Container(
+                      // height: double.infinity,
+                      // width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 30),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Stack(
+                            children: <Widget>[
+                              Container(
+                                height: 130,
+                                width: double.infinity,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      maxRadius: 55,
+                                      backgroundImage: _pickedImage == null
+                                          ? userModel.userimage == ''
+                                              ? const AssetImage(
+                                                  'assets/user.jpg')
+                                              : NetworkImage(
+                                                      userModel.userimage)
+                                                  as ImageProvider
+                                          : FileImage(_pickedImage),
+                                    ),
+                                  ],
                                 ),
                               ),
+                              edit == true
+                                  ? Padding(
+                                      padding: EdgeInsets.only(
+                                          left: MediaQuery.of(context)
+                                                  .viewPadding
+                                                  .left +
+                                              220,
+                                          top: MediaQuery.of(context)
+                                                  .viewPadding
+                                                  .left +
+                                              110),
+                                      child: Card(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            myDialogBox(context);
+                                          },
+                                          child: const CircleAvatar(
+                                            backgroundColor: Colors.transparent,
+                                            child: Icon(
+                                              Icons.camera_alt,
+                                              color: Color(0xff746bc9),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : Container(),
+                            ],
+                          ),
+                          Container(
+                            height: 300,
+                            width: double.infinity,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    child: edit == true
+                                        ? _buildTextFormFieldPart()
+                                        : _buildContainerPart(),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        )
-                      : Container(),
-                ],
-              ),
-              Container(
-                height: 300,
-                width: double.infinity,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Container(
-                      height: 300,
-                      child: edit == true
-                          ? _buildTextFormFieldPart()
-                          : _buildContainerPart(),
-                    ),
-                  ],
+                          Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: edit == false
+                                  ? MyButton(
+                                      name: "Edit Profile",
+                                      onPressed: () {
+                                        setState(() {
+                                          edit = true;
+                                        });
+                                      },
+                                    )
+                                  : Container(),
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  },
                 ),
-              ),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Container(
-                  width: 200,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: edit == false ? _buildButton() : Container(),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
+              ],
+            )
+          : Center(
+              child: CircularProgressIndicator(),
+            ),
     );
   }
 }

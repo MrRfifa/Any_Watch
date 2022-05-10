@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
 import 'package:anime_info/provider/show_provider.dart';
 import 'package:anime_info/screens/cartscreen.dart';
 import 'package:anime_info/screens/homepage.dart';
@@ -134,7 +132,7 @@ class _DetailScreenState extends State<DetailScreen> {
               _BuildTypeProduct(name: 'Action'),
               _BuildTypeProduct(name: 'Comedie'),
               _BuildTypeProduct(name: 'Adventure'),
-              _BuildTypeProduct(name: 'Chonin'),
+              _BuildTypeProduct(name: 'Romantic'),
             ],
           ),
         ),
@@ -165,7 +163,7 @@ class _DetailScreenState extends State<DetailScreen> {
         },
         color: Colors.pink,
         child: Text(
-          'Buy now for 5\$',
+          'Add to cart',
           style: TextStyle(
             fontSize: 18,
           ),
@@ -177,62 +175,62 @@ class _DetailScreenState extends State<DetailScreen> {
   @override
   Widget build(BuildContext context) {
     shpro = Provider.of<ShowProvider>(context);
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'Detail Screen',
-          style: TextStyle(color: Colors.black),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.black,
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => HomePage(),
           ),
-          onPressed: () {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => HomePage(),
-              ),
-            );
-          },
-        ),
-        actions: <Widget>[
-          NotificationButton(),
-        ],
-      ),
-      body: Container(
-        child: ListView(
-          children: <Widget>[
-            Column(
-              children: <Widget>[
-                _buildImage(),
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      _buildNamePart(),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      _buildDescriptionPart(),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      _buildTypePart(),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      _buildButtonPart(),
-                    ],
-                  ),
-                ),
-              ],
+        );
+        return Future.value(true);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text(
+            'Detail Page',
+            style: TextStyle(color: Colors.black),
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0.0,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: Colors.black,
             ),
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => HomePage(),
+                ),
+              );
+            },
+          ),
+          actions: <Widget>[
+            NotificationButton(),
           ],
+        ),
+        body: Container(
+          child: ListView(
+            children: <Widget>[
+              _buildImage(),
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    _buildNamePart(),
+                    _buildDescriptionPart(),
+                    _buildTypePart(),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    _buildButtonPart(),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,9 +1,6 @@
 import 'package:anime_info/provider/category_provider.dart';
 import 'package:anime_info/provider/show_provider.dart';
-import 'package:anime_info/screens/checkout.dart';
 import 'package:anime_info/screens/homepage.dart';
-import 'package:anime_info/screens/login.dart';
-import 'package:anime_info/screens/profilescreen.dart';
 import 'package:anime_info/screens/welcomescreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,7 +10,6 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  Provider.debugCheckInvalidValueType = null;
   runApp(MyApp());
 }
 
@@ -30,7 +26,10 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        theme: ThemeData(),
+        theme: ThemeData(
+          primaryColor: Color(0xff746bc9),
+          iconTheme: IconThemeData(color: Colors.black),
+        ),
         debugShowCheckedModeBanner: false,
         home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
@@ -42,7 +41,6 @@ class MyApp extends StatelessWidget {
             }
           },
         ),
-        //home: ProfileScreen(),
       ),
     );
   }

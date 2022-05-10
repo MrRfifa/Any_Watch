@@ -1,6 +1,7 @@
 import 'package:anime_info/model/product.dart';
 import 'package:anime_info/provider/category_provider.dart';
 import 'package:anime_info/provider/show_provider.dart';
+import 'package:anime_info/screens/detailscreen.dart';
 import 'package:anime_info/widgets/singleproduct.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -34,19 +35,33 @@ class SearchByCategory extends SearchDelegate<void> {
 
   @override
   Widget buildResults(BuildContext context) {
-    CategoryProvider provider = Provider.of(context);
-    List<Product> searchCategory = provider.searchCategoryList(query);
+    CategoryProvider catprovider = Provider.of<CategoryProvider>(context);
+    List<Product> searchCategory = catprovider.searchCategoryList(query);
     return GridView.count(
-      childAspectRatio: 0.8,
+      childAspectRatio: 0.75,
       crossAxisCount: 2,
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
       children: searchCategory
           .map(
-            (e) => SingleProduct(
-              show_type: e.type,
-              show_name: e.name,
-              image: e.image,
+            (e) => GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (ctx) => DetailScreen(
+                      image: e.image,
+                      name: e.name,
+                      type: e.type,
+                      price: e.price,
+                    ),
+                  ),
+                );
+              },
+              child: SingleProduct(
+                image: e.image,
+                show_name: e.name,
+                show_type: e.type,
+              ),
             ),
           )
           .toList(),
@@ -55,19 +70,33 @@ class SearchByCategory extends SearchDelegate<void> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    CategoryProvider categoryprovider = Provider.of(context);
-    List<Product> searchCategory = categoryprovider.searchCategoryList(query);
+    CategoryProvider catprovider = Provider.of<CategoryProvider>(context);
+    List<Product> searchCategory = catprovider.searchCategoryList(query);
     return GridView.count(
-      childAspectRatio: 0.8,
+      childAspectRatio: 0.75,
       crossAxisCount: 2,
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
       children: searchCategory
           .map(
-            (e) => SingleProduct(
-              show_type: e.type,
-              show_name: e.name,
-              image: e.image,
+            (e) => GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (ctx) => DetailScreen(
+                      image: e.image,
+                      name: e.name,
+                      type: e.type,
+                      price: e.price,
+                    ),
+                  ),
+                );
+              },
+              child: SingleProduct(
+                image: e.image,
+                show_name: e.name,
+                show_type: e.type,
+              ),
             ),
           )
           .toList(),

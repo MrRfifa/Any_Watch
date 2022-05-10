@@ -26,7 +26,6 @@ class _CartScreenState extends State<CartScreen> {
         padding: EdgeInsets.only(bottom: 50),
         child: RaisedButton(
           onPressed: () {
-            shpro.addNotification('Notification');
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) => CheckOut(),

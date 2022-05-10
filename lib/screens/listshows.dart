@@ -1,9 +1,11 @@
 import 'package:anime_info/model/product.dart';
 import 'package:anime_info/provider/category_provider.dart';
 import 'package:anime_info/provider/show_provider.dart';
+import 'package:anime_info/screens/detailscreen.dart';
 import 'package:anime_info/screens/homepage.dart';
 import 'package:anime_info/screens/search_by_category.dart';
 import 'package:anime_info/screens/search_by_show.dart';
+import 'package:anime_info/widgets/notification_but.dart';
 import 'package:anime_info/widgets/singleproduct.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,11 +19,107 @@ class ListShows extends StatelessWidget {
     required this.snapShot,
     required this.isCategory,
   });
-  @override
-  Widget build(BuildContext context) {
+
+  late CategoryProvider categoryProvider;
+  late ShowProvider showProvider;
+  Widget _buildTopName() {
+    return Column(
+      children: <Widget>[
+        Container(
+          height: 50,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    name,
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildMyGridView(context) {
+    final Orientation orientation = MediaQuery.of(context).orientation;
+
+    return Container(
+      height: 620,
+      child: GridView.count(
+        crossAxisCount: orientation == Orientation.portrait ? 2 : 3,
+        childAspectRatio: orientation == Orientation.portrait ? 0.7 : 0.75,
+        scrollDirection: Axis.vertical,
+        children: snapShot
+            .map(
+              (e) => GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (ctx) => DetailScreen(
+                        image: e.image,
+                        name: e.name,
+                        price: e.price,
+                        type: e.type,
+                      ),
+                    ),
+                  );
+                },
+                child: SingleProduct(
+                  show_name: e.name,
+                  show_type: e.type,
+                  image: e.image,
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(context) {
     CategoryProvider categoryProvider = Provider.of<CategoryProvider>(context);
     ShowProvider showProvider = Provider.of<ShowProvider>(context);
-    //final Orientation orientation = MediaQuery.of(context).orientation;
+    return isCategory == true
+        ? IconButton(
+            icon: Icon(
+              Icons.search,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              categoryProvider.getSearchList(
+                list: snapShot,
+              );
+              showSearch(
+                context: context,
+                delegate: SearchByCategory(),
+              );
+            },
+          )
+        : IconButton(
+            icon: Icon(
+              Icons.search,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              categoryProvider.getSearchList(
+                list: snapShot,
+              );
+              showSearch(
+                context: context,
+                delegate: SearchByShow(),
+              );
+            },
+          );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -39,85 +137,20 @@ class ListShows extends StatelessWidget {
             );
           },
         ),
-        iconTheme: const IconThemeData(
-          color: Colors.black,
-        ),
         actions: <Widget>[
-          isCategory == true
-              ? IconButton(
-                  onPressed: () {
-                    categoryProvider.getSearchList(list: snapShot);
-                    showSearch(
-                      context: context,
-                      delegate: SearchByCategory(),
-                    );
-                  },
-                  icon: const Icon(Icons.search),
-                  color: Colors.black,
-                )
-              : IconButton(
-                  onPressed: () {
-                    showProvider.getSearchList(list: snapShot);
-                    showSearch(
-                      context: context,
-                      delegate: SearchByShow(),
-                    );
-                  },
-                  icon: const Icon(Icons.search),
-                  color: Colors.black,
-                ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.notifications_none),
-            color: Colors.black,
-          ),
+          _buildSearchBar(context),
+          NotificationButton(),
         ],
       ),
       body: Container(
         margin: EdgeInsets.symmetric(horizontal: 15),
         child: ListView(
-          children: [
-            Column(
-              children: <Widget>[
-                Container(
-                  height: 50,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            name,
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  height: 550,
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.75,
-                    scrollDirection: Axis.vertical,
-                    children: snapShot
-                        .map(
-                          (e) => SingleProduct(
-                              show_type: e.type,
-                              show_name: e.name,
-                              image: e.image),
-                        )
-                        .toList(),
-                  ),
-                )
-              ],
+          children: <Widget>[
+            _buildTopName(),
+            SizedBox(
+              height: 10,
             ),
+            _buildMyGridView(context),
           ],
         ),
       ),

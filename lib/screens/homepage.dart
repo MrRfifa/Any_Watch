@@ -1,9 +1,13 @@
 import 'package:anime_info/model/categoryicon.dart';
 import 'package:anime_info/model/usermodel.dart';
 import 'package:anime_info/provider/category_provider.dart';
+import 'package:anime_info/screens/about.dart';
+import 'package:anime_info/screens/contactus.dart';
 import 'package:anime_info/screens/detailscreen.dart';
 import 'package:anime_info/screens/listshows.dart';
 import 'package:anime_info/screens/profilescreen.dart';
+import 'package:anime_info/screens/search_by_show.dart';
+import 'package:anime_info/screens/welcomescreen.dart';
 import 'package:anime_info/widgets/singleproduct.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -19,23 +23,15 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-Product? interdata;
-Product? blaclodata;
-Product? jundata;
-Product? hxhdata;
-
 late CategoryProvider categprovider;
 late ShowProvider showprovider;
-
-//var featuresnapshot;
-var newachivessnapshot;
 
 class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
 
   Widget _buildCategoryProduct({required String image, required int color}) {
     return CircleAvatar(
-      maxRadius: 48,
+      maxRadius: height * 0.14 / 2.1,
       backgroundColor: Color(color),
       child: Container(
         height: 40,
@@ -47,12 +43,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  bool homeColor = false;
-
-  bool inProgColor = false;
-
+  late double height, width;
+  bool homeColor = true;
   bool aboutColor = false;
-
   bool contactColor = false;
   bool profileColor = false;
 
@@ -66,7 +59,7 @@ class _HomePageState extends State<HomePage> {
             style: const TextStyle(color: Colors.black),
           ),
           currentAccountPicture: CircleAvatar(
-            backgroundImage: e.userimage == null
+            backgroundImage: e.userimage == ''
                 ? const AssetImage('assets/user.jpg')
                 : NetworkImage(e.userimage) as ImageProvider,
           ),
@@ -92,7 +85,6 @@ class _HomePageState extends State<HomePage> {
             onTap: () {
               setState(() {
                 contactColor = false;
-                inProgColor = false;
                 aboutColor = false;
                 homeColor = true;
                 profileColor = false;
@@ -102,39 +94,10 @@ class _HomePageState extends State<HomePage> {
             title: const Text('Home'),
           ),
           ListTile(
-            selected: inProgColor,
-            onTap: () {
-              setState(() {
-                contactColor = false;
-                homeColor = false;
-                aboutColor = false;
-                inProgColor = true;
-                profileColor = false;
-              });
-            },
-            leading: const Icon(Icons.notification_important),
-            title: const Text('In Progress'),
-          ),
-          ListTile(
-            selected: aboutColor,
-            onTap: () {
-              setState(() {
-                contactColor = false;
-                inProgColor = false;
-                homeColor = false;
-                aboutColor = true;
-                profileColor = false;
-              });
-            },
-            leading: const Icon(Icons.info),
-            title: const Text('About'),
-          ),
-          ListTile(
             selected: profileColor,
             onTap: () {
               setState(() {
                 contactColor = false;
-                inProgColor = false;
                 aboutColor = false;
                 homeColor = false;
                 profileColor = true;
@@ -149,15 +112,37 @@ class _HomePageState extends State<HomePage> {
             title: const Text('Profile'),
           ),
           ListTile(
+            selected: aboutColor,
+            onTap: () {
+              setState(() {
+                contactColor = false;
+                homeColor = false;
+                aboutColor = true;
+                profileColor = false;
+              });
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => About(),
+                ),
+              );
+            },
+            leading: const Icon(Icons.info),
+            title: const Text('About'),
+          ),
+          ListTile(
             selected: contactColor,
             onTap: () {
               setState(() {
                 contactColor = true;
-                inProgColor = false;
                 aboutColor = false;
                 homeColor = false;
                 profileColor = false;
               });
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => ContactUs(),
+                ),
+              );
             },
             leading: const Icon(Icons.phone),
             title: const Text('Contact us'),
@@ -165,6 +150,11 @@ class _HomePageState extends State<HomePage> {
           ListTile(
             onTap: () {
               FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (ctx) => WelcomeScreen(),
+                ),
+              );
             },
             leading: const Icon(Icons.exit_to_app),
             title: const Text('Logout'),
@@ -176,7 +166,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildImageSlider() {
     return Container(
-      height: 240,
+      height: height * 0.3,
       child: Carousel(
         autoplay: true,
         showIndicator: false,
@@ -229,14 +219,14 @@ class _HomePageState extends State<HomePage> {
           return GestureDetector(
             child: _buildCategoryProduct(
               image: e.image,
-              color: 0xffd9ed92,
+              color: 0xff76c893,
             ),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: ((context) => ListShows(
                         isCategory: true,
-                        name: 'Anime Category',
+                        name: 'Manga Category',
                         snapShot: mangacat,
                       )),
                 ),
@@ -258,15 +248,15 @@ class _HomePageState extends State<HomePage> {
           return GestureDetector(
             child: _buildCategoryProduct(
               image: e.image,
-              color: 0xffd9ed92,
+              color: 0xff1a759f,
             ),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: ((context) => ListShows(
-                        isCategory: true,
-                        name: 'Anime Category',
+                        name: 'Film Category',
                         snapShot: filmcat,
+                        isCategory: true,
                       )),
                 ),
               );
@@ -287,14 +277,14 @@ class _HomePageState extends State<HomePage> {
           return GestureDetector(
             child: _buildCategoryProduct(
               image: e.image,
-              color: 0xffd9ed92,
+              color: 0xff184e77,
             ),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: ((context) => ListShows(
                         isCategory: true,
-                        name: 'Anime Category',
+                        name: 'Serie Category',
                         snapShot: seriecat,
                       )),
                 ),
@@ -310,7 +300,7 @@ class _HomePageState extends State<HomePage> {
     return Column(
       children: <Widget>[
         Container(
-          height: 50,
+          height: height * 0.1 - 30,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: const <Widget>[
@@ -337,11 +327,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFeature() {
+    List<Product> feature = showprovider.getFeatureList;
     List<Product> featureproduct;
-    List<Product> homefeatureproduct;
-
-    homefeatureproduct = showprovider.getHomeFeatureList;
-    featureproduct = showprovider.getFeatureList;
+    featureproduct = showprovider.getHomeFeatureList;
     return Column(
       children: <Widget>[
         Row(
@@ -358,7 +346,7 @@ class _HomePageState extends State<HomePage> {
                     builder: (ctx) => ListShows(
                       isCategory: false,
                       name: 'Featured',
-                      snapShot: featureproduct,
+                      snapShot: feature,
                     ),
                   ),
                 );
@@ -371,7 +359,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         Row(
-          children: homefeatureproduct.map((e) {
+          children: featureproduct.map((e) {
             return Expanded(
               child: Row(
                 children: <Widget>[
@@ -429,7 +417,7 @@ class _HomePageState extends State<HomePage> {
     return Column(
       children: <Widget>[
         Container(
-          height: 50,
+          height: height * 0.1 - 30,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
@@ -528,16 +516,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    ////category provider
-    categprovider = Provider.of<CategoryProvider>(context);
+  void getCallAllFunctions() {
     categprovider.getAnimeData();
     categprovider.getFilmData();
     categprovider.getMangaData();
     categprovider.getSerieData();
-    ////show provider
-    showprovider = Provider.of<ShowProvider>(context);
+
+    ///feature and new achieves data
     showprovider.getFeatureData();
     showprovider.getNewAchieveData();
     /////home feature provider
@@ -551,6 +536,17 @@ class _HomePageState extends State<HomePage> {
     categprovider.getMangaIconData();
     /////usermodel provider
     showprovider.getUserData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ////show provider
+    showprovider = Provider.of<ShowProvider>(context);
+    ////category provider
+    categprovider = Provider.of<CategoryProvider>(context);
+    getCallAllFunctions();
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     return Scaffold(
       key: _key,
       drawer: _buildMyDrawer(),
@@ -561,17 +557,29 @@ class _HomePageState extends State<HomePage> {
         ),
         centerTitle: true,
         elevation: 0.0,
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.grey[100],
         leading: IconButton(
           icon: const Icon(
             Icons.menu,
             color: Colors.black,
           ),
           onPressed: () {
-            _key.currentState?.openDrawer();
+            _key.currentState!.openDrawer();
           },
         ),
         actions: <Widget>[
+          // IconButton(
+          //   onPressed: () {
+          //     // showSearch(
+          //     //   context: context,
+          //     //   delegate: SearchByShow(),
+          //     // );
+          //   },
+          //   icon: Icon(
+          //     Icons.search,
+          //     color: Colors.black,
+          //   ),
+          // ),
           NotificationButton(),
         ],
       ),
@@ -586,7 +594,7 @@ class _HomePageState extends State<HomePage> {
             Container(
               width: double.infinity,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   _buildImageSlider(),
                   _buildCategory(),

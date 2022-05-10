@@ -1,8 +1,8 @@
-// ignore_for_file: prefer_const_constructors
-
+import 'package:anime_info/screens/homepage.dart';
 import 'package:anime_info/screens/login.dart';
-import 'package:anime_info/screens/profilescreen.dart';
-import 'package:anime_info/widgets/passwordTextformfield.dart';
+
+import 'package:anime_info/widgets/mybutton.dart';
+
 import 'package:anime_info/widgets/textformfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,7 +22,7 @@ String p =
 RegExp regExp = new RegExp(p);
 bool obserText = true;
 bool isMale = true;
-
+bool isLoading = false;
 final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
 late final TextEditingController email = TextEditingController();
@@ -33,6 +33,59 @@ late final TextEditingController address = TextEditingController();
 GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
 class _SignUpState extends State<SignUp> {
+  void submit() async {
+    late UserCredential result;
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      result = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: email.text, password: password.text);
+      print(result);
+    } on PlatformException catch (error) {
+      var message = "Please Check Your Internet Connection ";
+      if (error.message != null) {
+        message = error.message.toString();
+      }
+      _scaffoldKey.currentState!.showSnackBar(SnackBar(
+        content: Text(message.toString()),
+        duration: Duration(milliseconds: 600),
+        backgroundColor: Theme.of(context).primaryColor,
+      ));
+      setState(() {
+        isLoading = false;
+      });
+    } catch (error) {
+      setState(() {
+        isLoading = false;
+      });
+      _scaffoldKey.currentState!.showSnackBar(SnackBar(
+        content: Text(error.toString().substring(36)),
+        duration: Duration(milliseconds: 2000),
+        backgroundColor: Theme.of(context).primaryColor,
+      ));
+
+      print(error);
+    }
+    FirebaseFirestore.instance.collection("user").doc(result.user?.uid).set({
+      "Username": username.text,
+      "UserId": result.user!.uid,
+      "Useremail": email.text,
+      "Useraddress": address.text,
+      "Gender": isMale == true ? "Male" : "Female",
+      "Phone Number": phonenumber.text,
+      "Userimage": '',
+    });
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (ctx) => HomePage(),
+      ),
+    );
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   void validation() async {
     if (username.text.isEmpty &&
         email.text.isEmpty &&
@@ -87,172 +140,170 @@ class _SignUpState extends State<SignUp> {
         ),
       );
     } else {
-      try {
-        UserCredential result = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(
-                email: email.text, password: password.text);
-        User user = result.user!;
-        FirebaseFirestore.instance.collection('user').doc(user.uid).set(
-          {
-            'Username': username.text,
-            'UserId': user.uid,
-            'Useremail': email.text,
-            'Useraddress': address.text,
-            'Gender': isMale == true ? 'Male' : 'Female',
-            'Phone Number': phonenumber.text,
-          },
-        );
-      } on PlatformException catch (e) {
-        _scaffoldKey.currentState!.showSnackBar(
-          SnackBar(
-            content: Text(
-              e.message.toString(),
+      submit();
+    }
+  }
+
+  Widget _buildAllTextFormField() {
+    return Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          MyTextFormField(
+            name: "UserName",
+            controller: username,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          MyTextFormField(
+            name: "Email",
+            controller: email,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          TextFormField(
+            controller: password,
+            obscureText: obserText,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: 'Password',
+              suffixIcon: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    obserText = !obserText;
+                  });
+                },
+                child: Icon(
+                  obserText == true ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.black,
+                ),
+              ),
+              hintStyle: TextStyle(color: Colors.black),
             ),
           ),
-        );
-      }
-    }
+          SizedBox(
+            height: 10,
+          ),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                isMale = !isMale;
+              });
+            },
+            child: Container(
+              height: 60,
+              padding: EdgeInsets.only(left: 10),
+              width: double.infinity,
+              decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+              child: Center(
+                child: Row(
+                  children: [
+                    Text(
+                      isMale == true ? "Male" : "Female",
+                      style: TextStyle(color: Colors.black87, fontSize: 18),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          MyTextFormField(
+            name: "Phone Number",
+            controller: phonenumber,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          MyTextFormField(
+            name: "Address",
+            controller: address,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomPart() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10),
+      width: double.infinity,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          _buildAllTextFormField(),
+          SizedBox(
+            height: 10,
+          ),
+          isLoading == false
+              ? MyButton(
+                  name: "SignUp",
+                  onPressed: () {
+                    validation();
+                  },
+                )
+              : Center(
+                  child: CircularProgressIndicator(),
+                ),
+          Row(
+            children: [
+              Text('I have already an account!'),
+              SizedBox(
+                width: 10,
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (ctx) => Login(),
+                    ),
+                  );
+                },
+                child: Text(
+                  'Login',
+                  style: TextStyle(
+                      color: Colors.cyan,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      resizeToAvoidBottomInset: false,
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: Container(
+      body: ListView(
+        children: [
+          Container(
+            height: 200,
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Container(
-                  height: 260,
-                  width: double.infinity,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: const <Widget>[
-                      Text(
-                        'Register',
-                        style: TextStyle(
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    height: 500,
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    width: double.infinity,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        MyTextFormField(
-                          controller: username,
-                          name: 'Username',
-                        ),
-                        MyTextFormField(
-                          controller: email,
-                          name: 'Email',
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isMale = !isMale;
-                            });
-                          },
-                          child: Container(
-                            height: 60,
-                            padding: EdgeInsets.only(
-                              left: 15,
-                            ),
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                              color: Colors.grey,
-                            )),
-                            child: Center(
-                              child: Row(
-                                children: [
-                                  Text(
-                                    isMale == true ? 'Male' : 'Female',
-                                    style: TextStyle(
-                                      color: Colors.black87,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        MyTextFormField(
-                          controller: phonenumber,
-                          name: 'Address',
-                        ),
-                        MyTextFormField(
-                          controller: phonenumber,
-                          name: 'Phone Number',
-                        ),
-                        PasswordTextFormField(
-                          controller: password,
-                          name: 'Password',
-                          obserText: obserText,
-                          onTap: () {
-                            FocusScope.of(context).unfocus();
-                            setState(() {
-                              obserText = !obserText;
-                            });
-                          },
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Container(
-                          height: 45,
-                          width: double.infinity,
-                          child: RaisedButton(
-                            onPressed: () {
-                              validation();
-                            },
-                            child: Text('Register'),
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Text('I have already an account!'),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (ctx) => Login()));
-                              },
-                              child: Text(
-                                'Login',
-                                style: TextStyle(
-                                    color: Colors.cyan,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
+                Text(
+                  "Register",
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
             ),
           ),
-        ),
+          Container(
+            height: 500,
+            child: _buildBottomPart(),
+          ),
+        ],
       ),
     );
   }

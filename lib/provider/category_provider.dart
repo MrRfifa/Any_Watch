@@ -50,14 +50,6 @@ class CategoryProvider with ChangeNotifier {
     return anime;
   }
 
-  // List<Product> searchAnimeList(String query) {
-  //   List<Product> searchAnime = anime.where((element) {
-  //     return element.name.toUpperCase().contains(query) ||
-  //         element.name.toLowerCase().contains(query);
-  //   }).toList();
-  //   return searchAnime;
-  // }
-
   /////end anime data
   /////film data
   Future<void> getFilmData() async {
@@ -86,13 +78,6 @@ class CategoryProvider with ChangeNotifier {
     return film;
   }
 
-  // List<Product> searchFilmList(String query) {
-  //   List<Product> searchFilm = film.where((element) {
-  //     return element.name.toUpperCase().contains(query) ||
-  //         element.name.toLowerCase().contains(query);
-  //   }).toList();
-  //   return searchFilm;
-  // }
   /////end film data
 
   /////manga data
@@ -122,13 +107,6 @@ class CategoryProvider with ChangeNotifier {
     return manga;
   }
 
-  // List<Product> searchMangaList(String query) {
-  //   List<Product> searchManga = manga.where((element) {
-  //     return element.name.toUpperCase().contains(query) ||
-  //         element.name.toLowerCase().contains(query);
-  //   }).toList();
-  //   return searchManga;
-  // }
   /////end manga data
 
   /////serie data
@@ -158,13 +136,6 @@ class CategoryProvider with ChangeNotifier {
     return serie;
   }
 
-  // List<Product> searchSerieList(String query) {
-  //   List<Product> searchSerie = serie.where((element) {
-  //     return element.name.toUpperCase().contains(query) ||
-  //         element.name.toLowerCase().contains(query);
-  //   }).toList();
-  //   return searchSerie;
-  // }
   /////end serie data
 
   ////animeicon data
@@ -272,7 +243,7 @@ class CategoryProvider with ChangeNotifier {
 
   /////end serieicon data
   ///search in category
-  late List<Product> searchList;
+  List<Product> searchList = [];
   void getSearchList({required List<Product> list}) {
     searchList = list;
   }
@@ -284,4 +255,13 @@ class CategoryProvider with ChangeNotifier {
     }).toList();
     return search_by_categ;
   }
+
+  // /////test in searching
+  // List<Product> searchProductList(String query) {
+  //   List<Product> search_by_show = searchList.where((element) {
+  //     return element.name.toUpperCase().contains(query) ||
+  //         element.name.toLowerCase().contains(query);
+  //   }).toList();
+  //   return search_by_show;
+  // }
 }
